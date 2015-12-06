@@ -20,7 +20,7 @@ metadata {
 		capability "Switch"
         capability "Color Control"
         capability "Polling"
-        
+        capability "Sensor"
         capability "Refresh" 
         
         command "setAdjustedColor"
@@ -51,7 +51,7 @@ metadata {
 		}
         
         standardTile("refresh", "device.switch", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
+            state "default", label:"", action:"polling.poll", icon:"st.secondary.refresh"
         }
    
 		main(["switch"])
@@ -67,18 +67,30 @@ def refresh() {
 	return httpCall(buildPath("rgbw", "status", group))
 }
 
+def parse(String description) {
+    log.debug "Parse description $description"
+    parseResponse(description)
+}
+
 private parseResponse(resp) {
-    log.debug("Response: "+resp.data)
+	//unschedule()
+    schedule("0 0/5 * * * ?", poll)
+    //log.debug("Response: "+resp.data)
     if(resp.data.state != null) {
     	if(device.currentValue("switch") != resp.data.state){
     		log.debug "differences detected between power, updating"
     		sendEvent(name: "switch", value: resp.data.state)
     	}
         
-        if(resp.data.brightness.toInteger() != device.currentValue("level").toInteger()){
-    		log.debug "differences detected between brightness, updating ${resp.data.brightness} / ${device.currentValue("level")}"
-    		sendEvent(name: "level", value: resp.data.brightness.toInteger())
-    	}
+        if(device.currentValue("level") == null) {
+            log.debug "setting level for the first time.."
+			sendEvent(name: "level", value: resp.data.brightness.toInteger())
+		} else {
+        	if(resp.data.brightness.toInteger() != device.currentValue("level").toInteger()){
+                log.debug "differences detected between brightness, updating ${resp.data.brightness} / ${device.currentValue("level")}"
+                sendEvent(name: "level", value: resp.data.brightness.toInteger())
+    		}
+        }
         
         if(resp.data.hex != device.currentValue("color")){
     		log.debug "differences detected between color, updating ${resp.data.hex} / ${device.currentValue("color")}"
@@ -119,6 +131,7 @@ def setAdjustedColor(value) {
 
 def on() {
 	log.debug "Device setOn"
+
     def path = buildPath("rgbw", "on", group);
     
     sendEvent(name: "switch", value: "on")
