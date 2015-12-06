@@ -51,7 +51,7 @@ metadata {
 		}
         
         standardTile("refresh", "device.switch", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"polling.poll", icon:"st.secondary.refresh"
+            state "default", label:"", action:"refresh", icon:"st.secondary.refresh"
         }
    
 		main(["switch"])
@@ -61,6 +61,7 @@ metadata {
 
 def poll() {
 	log.debug "entered poll"
+    state.hasPoll = false
     return refresh()
 }
 def refresh() {
@@ -74,8 +75,16 @@ def parse(String description) {
 
 private parseResponse(resp) {
 	//unschedule()
-    schedule("0 0/5 * * * ?", poll)
+    //schedule("0 0/5 * * * ?", poll)
     //log.debug("Response: "+resp.data)
+    
+    // do our own timer here since poll() doesn't seem to ever execute on its own
+    if(state.hasPoll == false || state.hasPoll == null) {
+    	log.debug "setting poll bool"
+    	runIn(60, poll)
+    	state.hasPoll = true
+    }
+    
     if(resp.data.state != null) {
     	if(device.currentValue("switch") != resp.data.state){
     		log.debug "differences detected between power, updating"
