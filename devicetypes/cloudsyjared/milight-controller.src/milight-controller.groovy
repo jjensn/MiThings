@@ -61,10 +61,10 @@ metadata {
 
 def poll() {
 	log.debug "entered poll"
-    refresh()
+    return refresh()
 }
 def refresh() {
-	return httpCall(buildPath("rgbw", "status"))
+	return httpCall(buildPath("rgbw", "status", group))
 }
 
 private parseResponse(resp) {
@@ -77,12 +77,12 @@ private parseResponse(resp) {
         
         if(resp.data.brightness.toInteger() != device.currentValue("level").toInteger()){
     		log.debug "differences detected between brightness, updating ${resp.data.brightness} / ${device.currentValue("level")}"
-    		sendEvent(name: 'level', value: resp.data.brightness)
+    		sendEvent(name: "level", value: resp.data.brightness.toInteger())
     	}
         
         if(resp.data.hex != device.currentValue("color")){
-    		log.debug "differences detected between color, updating ${resp.data.hex}"
-    		sendEvent(name: 'color', value: resp.data.hex)
+    		log.debug "differences detected between color, updating ${resp.data.hex} / ${device.currentValue("color")}"
+    		sendEvent(name: "color", value: "${resp.data.hex}")
     	}
     }
 }
