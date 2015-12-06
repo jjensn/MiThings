@@ -60,6 +60,7 @@ metadata {
 }
 
 def poll() {
+	log.debug "entered poll"
     refresh()
 }
 def refresh() {
@@ -79,14 +80,9 @@ private parseResponse(resp) {
     		sendEvent(name: 'level', value: resp.data.brightness)
     	}
         
-        if(resp.data.hue.toInteger() != device.currentValue("hue").toInteger()){
-    		log.debug "differences detected between hue, updating"
-    		sendEvent(name: 'hue', value: resp.data.hue)
-    	}
-        
-        if(resp.data.saturation.toInteger() != device.currentValue("saturation").toInteger()){
-    		log.debug "differences detected between saturation, updating"
-    		sendEvent(name: 'saturation', value: resp.data.saturation)
+        if(resp.data.hex != device.currentValue("color")){
+    		log.debug "differences detected between color, updating ${resp.data.hex}"
+    		sendEvent(name: 'color', value: resp.data.hex)
     	}
     }
 }
@@ -94,7 +90,7 @@ private parseResponse(resp) {
 def setLevel(percentage) {
 	log.debug "setLevel ${percentage}"
 	if (percentage < 1 && percentage > 0) {
-		percentage = 1 // clamp to 1%
+		percentage = 1
 	}
         
 	def path = buildPath("rgbw/brightness", percentage, group);
@@ -111,14 +107,12 @@ def setAdjustedColor(value) {
     int r = value.red
     int g = value.green
     int b = value.blue
-    int h = value.hue
-    int s = value.saturation
+    String h = value.hex
     
-    sendEvent(name: 'hue', value: h)
-    sendEvent(name: 'saturation', value: s)
+    sendEvent(name: 'color', value: h)
     sendEvent(name: 'switch', value: "on")
     
-    def path = buildColorPath(r, g, b, h, s, group);
+    def path = buildColorPath(r, g, b, h, group);
 
 	return httpCall(path);
 }
@@ -156,11 +150,11 @@ private buildPath(option, value, grp = 0) {
     return path;
 }
 
-private buildColorPath(red, green, blue, hue, sat, grp = 0) {
+private buildColorPath(red, green, blue, hex, grp = 0) {
 	def path = ""
     def value = ""
     
-    value = "rgbw/color/r/$red/g/$green/b/$blue/h/$hue/s/$sat"
+    value = "rgbw/color/r/$red/g/$green/b/$blue/hex/$hex"
     
 	if(grp == 0 || grp == null) {
     	path = "$value"
