@@ -18,43 +18,77 @@ metadata {
 		capability "Switch Level"
 		capability "Actuator"
 		capability "Switch"
-		capability "Color Control"
-		capability "Polling"
-		capability "Refresh" 
-		
-		command "setAdjustedColor"
-		command "on"
-		command "off"
-		command "setLevel"
+        capability "Color Control"
+        capability "Polling"
+        
+        capability "Refresh" 
+        
+        command "setAdjustedColor"
 	}
-	
-	preferences {       
-		input "mac", "string", title: "MAC Address",
-			description: "The MAC address of your MiLight bridge", defaultValue: "DE:AD:BE:EF:CA:FE",
-			required: true, displayDuringSetup: true 
-		
-		input "group", "number", title: "Group Number",
-			description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
-			required: true, displayDuringSetup: true
-	}
+    
+    preferences {       
+       input "mac", "string", title: "MAC Address",
+       		  description: "The MAC address of your MiLight bridge", defaultValue: "DE:AD:BE:EF:CA:FE",
+              required: true, displayDuringSetup: true 
+       
+       input "group", "number", title: "Group Number",
+       		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
+              required: true, displayDuringSetup: true
+       }
 
 	tiles(scale: 2) {
-		multiAttributeTile(name:"switch", type: "lighting", width: 6, height: 4, canChangeIcon: true) {
+		multiAttributeTile(name:"switch", type: "lighting", width: 6, height: 4, canChangeIcon: true){
 			tileAttribute ("device.switch", key: "PRIMARY_CONTROL") {
-			attributeState "on", label:'${name}', action:"switch.off", icon:"st.switches.switch.on", backgroundColor:"#79b821", nextState:"off"
-			attributeState "off", label:'${name}', action:"switch.on", icon:"st.switches.switch.off", backgroundColor:"#ffffff", nextState:"on"
+				attributeState "on", label:'${name}', action:"switch.off", icon:"st.switches.switch.on", backgroundColor:"#79b821", nextState:"off"
+				attributeState "off", label:'${name}', action:"switch.on", icon:"st.switches.switch.off", backgroundColor:"#ffffff", nextState:"on"
+			}
+			tileAttribute ("device.level", key: "SLIDER_CONTROL") {
+				attributeState "level", action:"switch level.setLevel"
+			}
+            tileAttribute ("device.color", key: "COLOR_CONTROL") {
+				attributeState "color", action:"setAdjustedColor"
+			}
 		}
-		tileAttribute ("device.level", key: "SLIDER_CONTROL") {
-			attributeState "level", action:"switch level.setLevel"
-		}
-		tileAttribute ("device.color", key: "COLOR_CONTROL") {
-			attributeState "color", action:"setAdjustedColor"
-		}
-	}
-	
-	main(["switch"])
-		details(["switch","levelSliderControl", "rgbSelector"])
+        
+        standardTile("refresh", "device.switch", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
+        }
+   
+		main(["switch"])
+		details(["switch","levelSliderControl", "rgbSelector", "refresh"])
 	} 
+}
+
+def poll() {
+    refresh()
+}
+def refresh() {
+	return httpCall(buildPath("rgbw", "status"))
+}
+
+private parseResponse(resp) {
+    log.debug("Response: "+resp.data)
+    if(resp.data.state != null) {
+    	if(device.currentValue("switch") != resp.data.state){
+    		log.debug "differences detected between power, updating"
+    		sendEvent(name: "switch", value: resp.data.state)
+    	}
+        
+        if(resp.data.brightness.toInteger() != device.currentValue("level").toInteger()){
+    		log.debug "differences detected between brightness, updating ${resp.data.brightness} / ${device.currentValue("level")}"
+    		sendEvent(name: 'level', value: resp.data.brightness)
+    	}
+        
+        if(resp.data.hue.toInteger() != device.currentValue("hue").toInteger()){
+    		log.debug "differences detected between hue, updating"
+    		sendEvent(name: 'hue', value: resp.data.hue)
+    	}
+        
+        if(resp.data.saturation.toInteger() != device.currentValue("saturation").toInteger()){
+    		log.debug "differences detected between saturation, updating"
+    		sendEvent(name: 'saturation', value: resp.data.saturation)
+    	}
+    }
 }
 
 def setLevel(percentage) {
@@ -62,68 +96,81 @@ def setLevel(percentage) {
 	if (percentage < 1 && percentage > 0) {
 		percentage = 1 // clamp to 1%
 	}
-	
+        
 	def path = buildPath("rgbw/brightness", percentage, group);
-	
-	return httpCall(path);
+    
+    sendEvent(name: 'level', value: percentage)
+    sendEvent(name: 'switch', value: "on")
+    
+    return httpCall(path);
 }
 
 def setAdjustedColor(value) {
-	log.debug "setAdjustedColor: ${value}"
-	
-	int r = value.red
-	int g = value.green
-	int b = value.blue
-	
-	def path = buildColorPath(r, g, b, group);
-	
+    log.debug "setAdjustedColor: ${value}"
+
+    int r = value.red
+    int g = value.green
+    int b = value.blue
+    int h = value.hue
+    int s = value.saturation
+    
+    sendEvent(name: 'hue', value: h)
+    sendEvent(name: 'saturation', value: s)
+    sendEvent(name: 'switch', value: "on")
+    
+    def path = buildColorPath(r, g, b, h, s, group);
+
 	return httpCall(path);
 }
 
 def on() {
 	log.debug "Device setOn"
-	def path = buildPath("rgbw", "on", group);
-	
-	return httpCall(path);
+    def path = buildPath("rgbw", "on", group);
+    
+    sendEvent(name: "switch", value: "on")
+    
+    return httpCall(path);
 }
 
 def off() {
 	log.debug "Device setOff"
-	
-	def path = buildPath("rgbw", "off", group);
-	
-	return httpCall(path);
+    
+    def path = buildPath("rgbw", "off", group);
+    
+	sendEvent(name: "switch", value: "off")
+    
+    return httpCall(path);
 }
 
 private buildPath(option, value, grp = 0) {
 	def path = ""
-	
+    
 	if(grp == 0 || grp == null) {
-		path = "$option/$value"
-	} else {
-		path = "$option/$value/$grp"
-	}
-	
-	log.debug "My path: $path"
-	
-	return path;
+    	path = "$option/$value"
+    } else {
+    	path = "$option/$value/$grp"
+    }
+    
+    log.debug "My path: $path"
+    
+    return path;
 }
 
-private buildColorPath(red, green, blue, grp = 0) {
+private buildColorPath(red, green, blue, hue, sat, grp = 0) {
 	def path = ""
-	def value = ""
-	
-	value = "rgbw/color/r/$red/g/$green/b/$blue"
-	
+    def value = ""
+    
+    value = "rgbw/color/r/$red/g/$green/b/$blue/h/$hue/s/$sat"
+    
 	if(grp == 0 || grp == null) {
-		path = "$value"
-	} else {
-		path = "$value/$grp"
-	}
-	
-	log.debug "My path: $path"
-	
-	return path;
+    	path = "$value"
+    } else {
+    	path = "$value/$grp"
+    }
+    
+    log.debug "My path: $path"
+    
+    return path;
 }
 
 private httpCall(path) {
@@ -136,6 +183,7 @@ private httpCall(path) {
     try {
         httpGet(params) {resp ->
             log.debug "resp data: ${resp.data}"
+            parseResponse(resp)
         }
     } catch (e) {
         log.error "error: $e"
