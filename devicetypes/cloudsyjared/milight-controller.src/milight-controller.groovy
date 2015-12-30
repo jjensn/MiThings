@@ -48,7 +48,7 @@ metadata {
 				attributeState "level", action:"switch level.setLevel"
 			}
             tileAttribute ("device.color", key: "COLOR_CONTROL") {
-				attributeState "color", action:"setAdjustedColor"
+				attributeState "color", action:"setColor"
 			}
 		}
         
@@ -117,6 +117,10 @@ def setLevel(percentage) {
     sendEvent(name: 'switch', value: "on")
     
     return httpCall(path);
+}
+
+def setColor(value) { 
+    setAdjustedColor(value)
 }
 
 def setAdjustedColor(value) {
