@@ -34,9 +34,10 @@ metadata {
        input "group", "number", title: "Group Number",
        		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
               required: true, displayDuringSetup: true
-       }
        
        input "isDebug", "bool", title: "Enable debug mode", defaultValue: "false", required: "false", displayDuringSetup: false
+       
+	}
 
 	tiles(scale: 2) {
 		multiAttributeTile(name:"switch", type: "lighting", width: 6, height: 4, canChangeIcon: true){
