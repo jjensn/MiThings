@@ -16,13 +16,13 @@
 definition(
     name: "MiThings",
     namespace: "cloudsyjared",
+    parent: "cloudsyjared:MiLight Manager",
     author: "Jared Jensen",
-    description: "Adds SmartThings support for MiLight / Easybulb / LimitlessLED bulbs",
+    description: "Child application for MiLight Manager -- do not install directly",
     category: "My Apps",
     iconUrl: "http://cdn.device-icons.smartthings.com/Lighting/light20-icn.png",
     iconX2Url: "http://cdn.device-icons.smartthings.com/Lighting/light20-icn@2x.png",
-    iconX3Url: "http://cdn.device-icons.smartthings.com/Lighting/light20-icn@2x.png",
-    singleInstance: false)
+    iconX3Url: "http://cdn.device-icons.smartthings.com/Lighting/light20-icn@2x.png")
 
 
 preferences {
@@ -37,13 +37,13 @@ def getName(myName, n) {
 def selectMiLight() {
 	dynamicPage(name: "selectMiLight", title: "MiLight Wifi Hub Setup", uninstall: true, install: true) {
 		section("") {
-			input "wifiHub", "device.milightController", title: "Wifi Hub Name", required: true, multiple: false
-			input "howMany", "enum", title: "How many zones?", options: ["1" , "2" , "3" ,"4"], required: true, submitOnChange: true
+            input "miLightName", "text", title: "MiLight hub name", description: "ie: Living Room Master Switch", required: true, submitOnChange: false
+            input "macAddress", "text", title: "Hub MAC address", description: "Use format AA:BB:CC:DD:EE:FF", required: true, submitOnChange: false
+			input "howMany", "number", title: "How many zones?", required: true, submitOnChange: true
+            //input "createMaster", "bool", title: "Create master device?", description: "Controlls all the zones on the hub"
 		}
 		section("Zones") {
-        	int x = 0;
-        	if(howMany) { x = howMany.toInteger() }
-			for (int i = 0; i < x; i++) {
+			for (int i = 0; i < howMany; i++) {
 				def thisName = "dName$i"
 				getName(thisName, i + 1)
                 paragraph(" ")
@@ -62,17 +62,37 @@ def updated() {
 }
 
 def initialize() {
-	app.updateLabel("MiLight/${settings.wifiHub.label}")
+	
     state.myDevices = [:]
-	for (int i = 0 ; i < howMany.toInteger(); i++) {
+    
+    app.updateLabel("${settings.miLightName}")
+    
+    def deviceId = "${settings.macAddress}/0"
+    def myDevice = getChildDevice(deviceId)
+ 	if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: "${settings.miLightName}", completedSetup: true])
+	myDevice = getChildDevice(deviceId)
+    myDevice.name = settings.miLightName
+    myDevice.label = settings.miLightName
+    myDevice.setPreferences(["mac": "${settings.macAddress}", "group":0, "isDebug": false])
+    
+	for (int i = 0 ; i < howMany; i++) {
         def thisName = settings.find {it.key == "dName$i"}
-    	def deviceId = "${settings.wifiHub.deviceNetworkId}/${i}"
-        def myDevice = getChildDevice(deviceId)
- 		if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, settings.wifiHub.hub.id, [label: thisName.value, completedSetup: true])
+    	deviceId = "${settings.macAddress}/${i+1}"
+        myDevice = getChildDevice(deviceId)
+ 		if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: thisName.value, completedSetup: true])
 		myDevice = getChildDevice(deviceId)
         myDevice.name = thisName.value
         myDevice.label = thisName.value
-        def pref = settings.wifiHub.getPreferences()
-        myDevice.setPreferences(["mac": "${pref.mac}", "group":i + 1, "isDebug": false])
+        myDevice.setPreferences(["mac": "${settings.macAddress}", "group":i + 1, "isDebug": false])
+    }
+}
+
+def uninstalled() {
+    removeChildDevices(getChildDevices())
+}
+
+private removeChildDevices(delete) {
+    delete.each {
+        deleteChildDevice(it.deviceNetworkId)
     }
 }
