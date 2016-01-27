@@ -14,7 +14,7 @@
  *
  */
 metadata {
-	definition (name: "MiLight Controller", namespace: "cloudsyjared", author: "Jared Jensen", singleInstance: true) {
+	definition (name: "MiLight Controller", namespace: "cloudsyjared", author: "Jared Jensen", singleInstance: false) {
 		capability "Switch Level"
 		capability "Actuator"
 		capability "Switch"
@@ -30,12 +30,12 @@ metadata {
     
     preferences {       
        input "mac", "string", title: "MAC Address",
-       		  description: "The MAC address of this MiLight bridge", defaultValue: "DE:AD:BE:EF:CA:FE",
+       		  description: "The MAC address of this MiLight bridge", defaultValue: "The MAC address here",
               required: true, displayDuringSetup: true 
        
        input "group", "number", title: "Group Number",
        		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
-              required: true, displayDuringSetup: true
+              required: false, displayDuringSetup: false
        
        input "isDebug", "boolean", title: "Enable debug mode", defaultValue: false, required: true, displayDuringSetup: true
        
@@ -44,8 +44,8 @@ metadata {
 	tiles(scale: 2) {
 		multiAttributeTile(name:"switch", type: "lighting", width: 6, height: 4, canChangeIcon: true){
 			tileAttribute ("device.switch", key: "PRIMARY_CONTROL") {
-				attributeState "on", label:'${name}', action:"switch.off", icon:"st.switches.switch.on", backgroundColor:"#79b821", nextState:"off"
-				attributeState "off", label:'${name}', action:"switch.on", icon:"st.switches.switch.off", backgroundColor:"#ffffff", nextState:"on"
+				attributeState "on", label:'${name}', action:"switch.off", icon:"st.Lighting.light20", backgroundColor:"#79b821", nextState:"off"
+				attributeState "off", label:'${name}', action:"switch.on", icon:"st.Lighting.light20", backgroundColor:"#ffffff", nextState:"on"
 			}
 			tileAttribute ("device.level", key: "SLIDER_CONTROL") {
 				attributeState "level", action:"switch level.setLevel"
@@ -76,6 +76,17 @@ def refresh() {
 def parse(String description) {
     if(isDebug) { log.debug "MiLight device: ${mac}, parse description ${description}" }
     parseResponse(description)
+}
+
+private parseResponse(String resp) {
+	
+    if(isDebug) { log.debug "Received response: ${resp}" }
+    
+    if(state.hasPoll == false || state.hasPoll == null) {
+    	if(isDebug) { log.debug "MiLight device: ${mac}, will run poll method in 60 seconds." }
+    	runIn(60, poll)
+    	state.hasPoll = true
+    }
 }
 
 private parseResponse(resp) {
