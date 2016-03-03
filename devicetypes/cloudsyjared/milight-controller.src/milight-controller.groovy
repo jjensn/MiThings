@@ -25,7 +25,6 @@ metadata {
         
         command "reload"        
         command "unknown"
-		//command "setAdjustedColor"
 	}
     
     preferences {       
@@ -63,8 +62,6 @@ metadata {
 }
 
 def poll() {
-	//if(isDebug) { log.debug "MiLight device: ${mac}, entered poll method." }
-    /*state.hasPoll = false*/
     return refresh()
 }
 
@@ -76,59 +73,20 @@ def parse(String description) {
 private parseResponse(String resp) {
 	
      log.debug "Received response: ${resp}"
-    
-    /*if(state.hasPoll == false || state.hasPoll == null) {
-    	if(isDebug) { log.debug "MiLight device: ${mac}, will run poll method in 60 seconds." }
-    	runIn(60, poll)
-    	state.hasPoll = true
-    }*/
 }
 
 private parseResponse(resp) {
 	
     log.debug "Received response: ${resp.data}" 
-    
-    /*if(state.hasPoll == false || state.hasPoll == null) {
-    	if(isDebug) { log.debug "MiLight device: ${mac}, will run poll method in 60 seconds." }
-    	runIn(60, poll)
-    	state.hasPoll = true
-    }
-    
-    if(resp.data.state != null) {
-    	if(device.currentValue("switch") != resp.data.state){
-    		if(isDebug) { log.debug "MiLight device: ${mac}, differences detected between power, updating SmartThings" }
-    		sendEvent(name: "switch", value: resp.data.state)
-    	}
-        
-        if(device.currentValue("level") == null) {
-            if(isDebug) { log.debug "MiLight device: ${mac}, setLevel() for first time" }
-			sendEvent(name: "level", value: resp.data.brightness.toInteger())
-		} else {
-        	if(resp.data.brightness.toInteger() != device.currentValue("level").toInteger()){
-                if(isDebug) { log.debug "MiLight device: ${mac}, differences detected between brightness, updating. CLOUD: ${resp.data.brightness} / DEVICE: ${device.currentValue("level")}" }
-                sendEvent(name: "level", value: resp.data.brightness.toInteger())
-    		}
-        }
-        
-        if(resp.data.hex != device.currentValue("color")){
-    		if(isDebug) { log.debug "MiLight device: ${mac}, differences detected between color, updating. CLOUD: ${resp.data.hex} / DEVICE: ${device.currentValue("color")}" }
-    		sendEvent(name: "color", value: "${resp.data.hex}")
-    	}
-    }*/
 }
 
 def setLevel(percentage, boolean sendHttp = true) {
-	/*if(isDebug) { log.debug "MiLight device: ${mac}, setLevel: ${percentage}" }
-	*/
     
     if (percentage < 1 && percentage > 0) {
 		percentage = 1
 	}
-    
-	//def path = buildPath("rgbw/brightness", percentage, group);
-    
+        
     sendEvent(name: 'level', value: percentage, data: [sendReq: sendHttp])
-    
     
     return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
 }
@@ -142,44 +100,19 @@ def unknown() {
 }
 
 def setAdjustedColor(value, boolean sendHttp = true) {
-    //if(isDebug) { log.debug "MiLight device: ${mac}, setAdjustedColor: ${value}" }
 
-    //int r = value.red
-    //int g = value.green
-    //int b = value.blue
-    
-    log.debug "${value}"
-    String h = value.hex
-    
-    
-    log.debug "in device code, hex value : ${h}"
+	def h = value.hex
     
     sendEvent(name: 'color', value: h, data: [sendReq: sendHttp])
-    
-    
-    //def path = buildColorPath(r, g, b, h, group);
 
 	return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
 }
 
 def on(boolean sendHttp = true) {
-	//if(isDebug) { log.debug "MiLight device: ${mac}, setOn" }
-
-   // def path = buildPath("rgbw", "on", group);
-    
-    //if(!skipHttp) { httpCall(path); }
         
     return sendEvent(name: "switch", value: "on", data: [sendReq: sendHttp])
 }
 
 def off(boolean sendHttp = true) {
-	//if(isDebug) { log.debug "MiLight device: ${mac}, setOff" }
-    
-    //def path = buildPath("rgbw", "off", group);
-    
-    //if(!skipHttp) { httpCall(path); }
-    
-    log.debug "in device code, ${sendHttp}"
-   
     return sendEvent(name: "switch", value: "off", data: [sendReq: sendHttp]);
 }
