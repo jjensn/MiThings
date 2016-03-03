@@ -162,12 +162,6 @@ def masterSwitchReloadHandler(evt) {
 	log.debug "in master reload"
 }
 
-def testingHandler() {
-	 log.debug "refresh! ${settings.macAddress} / ${evt.device.name} ${evt.value}!"
-    
-    //parent.httpCall(buildPath("rgbw", "status", group))
-}
-
 def zoneSwitchHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "Zone switch changed state! ${evt.value}!" }
     
@@ -184,12 +178,6 @@ def zoneSwitchHandler(evt) {
         def path = parent.buildPath("rgbw", evt.value, evt);
     	parent.httpCall(path, settings.macAddress, evt);
     }
-       
-    /*if(evt.value == "on") {
-    	//evt.device.on()
-    } else if(evt.value == "off") {
-    	//evt.device.off()
-    }*/
 }
 
 def zoneSwitchLevelHandler(evt) {
@@ -208,11 +196,6 @@ def zoneSwitchLevelHandler(evt) {
         def path = parent.buildPath("rgbw/brightness", evt.value.toInteger(), evt);
     	parent.httpCall(path, settings.macAddress, evt);
 	}
-            
-    /*switch(evt.value) {
-  		case "on" : evt.device.on()
-        case "off": evt.device.off()
-	}*/
 }
 
 def zoneSwitchColorHandler(evt) {
@@ -231,9 +214,4 @@ def zoneSwitchColorHandler(evt) {
 		def path = parent.buildPath("rgbw/hex", evt.value, evt);
 		parent.httpCall(path, settings.macAddress, evt);
 	}
-            
-    /*switch(evt.value) {
-  		case "on" : evt.device.on()
-        case "off": evt.device.off()
-	}*/
 }
