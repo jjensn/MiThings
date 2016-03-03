@@ -19,7 +19,7 @@ Device Code Installation:
 3. Click "Settings"
 4. Add my repo information (owner: cloudsyjared, name: SmartThings-MiLight, branch: master)
 5. Save
-6. Select "Update from Repo" > "SmartThings-Mighlight (master)"
+6. Select "Update from Repo" > "SmartThings-Mighlight (master)"  and check the "publish" box.
 7. Verify there is a new device listed, named "cloudsyjared : MiLight Controller"
 
 SmartApp Installation:
@@ -28,7 +28,7 @@ SmartApp Installation:
 3. Click "Settings"
 4. Add my repo information (owner: cloudsyjared, name: SmartThings-MiLight, branch: master)
 5. Save
-6. Select "Update from Repo" > "SmartThings-Mighlight (master)"
+6. Select "Update from Repo" > "SmartThings-Mighlight (master)" and check the "publish" box.
 7. Verify there are two new SmartApps listed, named "cloudsyjared : MiLight Manager" and "cloudsyjared : MiThings"
 
 SmartThings Setup:
