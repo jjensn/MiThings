@@ -1,8 +1,6 @@
 # SmartThings-MiLight
 MiLight / LimitlessLED / EasyBulb integration with SmartThings
 
-You will need to copy and paste my device code into your SmartThings dashboard (https://graph.api.smartthings.com/)
-
 *Latest news:*
 
 03/03/2016: A major release is being pushed out. All users must upgrade to keep functionality within the coming months.
