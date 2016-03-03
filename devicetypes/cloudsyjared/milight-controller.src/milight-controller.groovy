@@ -23,22 +23,19 @@ metadata {
         capability "Sensor"
         capability "Refresh" 
         
-        command "reset"        
-        command "refresh"
-		command "setAdjustedColor"
+        command "reload"        
+        command "unknown"
+		//command "setAdjustedColor"
 	}
     
     preferences {       
        input "mac", "string", title: "MAC Address",
        		  description: "The MAC address of this MiLight bridge", defaultValue: "The MAC address here",
-              required: true, displayDuringSetup: true 
+              required: true, displayDuringSetup: false 
        
        input "group", "number", title: "Group Number",
        		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
-              required: false, displayDuringSetup: false
-       
-       input "isDebug", "boolean", title: "Enable debug mode", defaultValue: false, required: true, displayDuringSetup: true
-       
+              required: false, displayDuringSetup: false       
 	}
 
 	tiles(scale: 2) {
@@ -46,6 +43,7 @@ metadata {
 			tileAttribute ("device.switch", key: "PRIMARY_CONTROL") {
 				attributeState "on", label:'${name}', action:"switch.off", icon:"st.Lighting.light20", backgroundColor:"#79b821", nextState:"off"
 				attributeState "off", label:'${name}', action:"switch.on", icon:"st.Lighting.light20", backgroundColor:"#ffffff", nextState:"on"
+				attributeState "unknown", label:'unknwn', action:"switch.on", icon:"st.unknown.unknown.unknown", backgroundColor:"#d3d3d3", nextState:"on"
 			}
 			tileAttribute ("device.level", key: "SLIDER_CONTROL") {
 				attributeState "level", action:"switch level.setLevel"
@@ -55,8 +53,8 @@ metadata {
 			}
 		}
         
-        standardTile("refresh", "device.switch", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
+        standardTile("refresh", "device.testing", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label:"", action:"testing", icon:"st.secondary.refresh"
         }
        
 		main(["switch"])
@@ -65,35 +63,32 @@ metadata {
 }
 
 def poll() {
-	if(isDebug) { log.debug "MiLight device: ${mac}, entered poll method." }
-    state.hasPoll = false
+	//if(isDebug) { log.debug "MiLight device: ${mac}, entered poll method." }
+    /*state.hasPoll = false*/
     return refresh()
-}
-def refresh() {
-	return httpCall(buildPath("rgbw", "status", group))
 }
 
 def parse(String description) {
-    if(isDebug) { log.debug "MiLight device: ${mac}, parse description ${description}" }
+    //if(isDebug) { log.debug "MiLight device: ${mac}, parse description ${description}" }
     parseResponse(description)
 }
 
 private parseResponse(String resp) {
 	
-    if(isDebug) { log.debug "Received response: ${resp}" }
+     log.debug "Received response: ${resp}"
     
-    if(state.hasPoll == false || state.hasPoll == null) {
+    /*if(state.hasPoll == false || state.hasPoll == null) {
     	if(isDebug) { log.debug "MiLight device: ${mac}, will run poll method in 60 seconds." }
     	runIn(60, poll)
     	state.hasPoll = true
-    }
+    }*/
 }
 
 private parseResponse(resp) {
 	
-    if(isDebug) { log.debug "Received response: ${resp}" }
+    log.debug "Received response: ${resp.data}" 
     
-    if(state.hasPoll == false || state.hasPoll == null) {
+    /*if(state.hasPoll == false || state.hasPoll == null) {
     	if(isDebug) { log.debug "MiLight device: ${mac}, will run poll method in 60 seconds." }
     	runIn(60, poll)
     	state.hasPoll = true
@@ -119,107 +114,72 @@ private parseResponse(resp) {
     		if(isDebug) { log.debug "MiLight device: ${mac}, differences detected between color, updating. CLOUD: ${resp.data.hex} / DEVICE: ${device.currentValue("color")}" }
     		sendEvent(name: "color", value: "${resp.data.hex}")
     	}
-    }
+    }*/
 }
 
-def setLevel(percentage) {
-	if(isDebug) { log.debug "MiLight device: ${mac}, setLevel: ${percentage}" }
-	if (percentage < 1 && percentage > 0) {
+def setLevel(percentage, boolean sendHttp = true) {
+	/*if(isDebug) { log.debug "MiLight device: ${mac}, setLevel: ${percentage}" }
+	*/
+    
+    if (percentage < 1 && percentage > 0) {
 		percentage = 1
 	}
-        
-	def path = buildPath("rgbw/brightness", percentage, group);
     
-    sendEvent(name: 'level', value: percentage)
-    sendEvent(name: 'switch', value: "on")
+	//def path = buildPath("rgbw/brightness", percentage, group);
     
-    return httpCall(path);
+    sendEvent(name: 'level', value: percentage, data: [sendReq: sendHttp])
+    
+    
+    return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
 }
 
-def setColor(value) { 
-    setAdjustedColor(value)
+def setColor(value, boolean sendHttp = true) { 
+    setAdjustedColor(value, sendHttp)
 }
 
-def setAdjustedColor(value) {
-    if(isDebug) { log.debug "MiLight device: ${mac}, setAdjustedColor: ${value}" }
+def unknown() {
+    sendEvent(name: "switch", value: "unknown")
+}
 
-    int r = value.red
-    int g = value.green
-    int b = value.blue
+def setAdjustedColor(value, boolean sendHttp = true) {
+    //if(isDebug) { log.debug "MiLight device: ${mac}, setAdjustedColor: ${value}" }
+
+    //int r = value.red
+    //int g = value.green
+    //int b = value.blue
+    
+    log.debug "${value}"
     String h = value.hex
     
-    sendEvent(name: 'color', value: h)
-    sendEvent(name: 'switch', value: "on")
     
-    def path = buildColorPath(r, g, b, h, group);
+    log.debug "in device code, hex value : ${h}"
+    
+    sendEvent(name: 'color', value: h, data: [sendReq: sendHttp])
+    
+    
+    //def path = buildColorPath(r, g, b, h, group);
 
-	return httpCall(path);
+	return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
 }
 
-def on() {
-	if(isDebug) { log.debug "MiLight device: ${mac}, setOn" }
+def on(boolean sendHttp = true) {
+	//if(isDebug) { log.debug "MiLight device: ${mac}, setOn" }
 
-    def path = buildPath("rgbw", "on", group);
+   // def path = buildPath("rgbw", "on", group);
     
-    sendEvent(name: "switch", value: "on")
-    
-    return httpCall(path);
+    //if(!skipHttp) { httpCall(path); }
+        
+    return sendEvent(name: "switch", value: "on", data: [sendReq: sendHttp])
 }
 
-def off() {
-	if(isDebug) { log.debug "MiLight device: ${mac}, setOff" }
+def off(boolean sendHttp = true) {
+	//if(isDebug) { log.debug "MiLight device: ${mac}, setOff" }
     
-    def path = buildPath("rgbw", "off", group);
+    //def path = buildPath("rgbw", "off", group);
     
-	sendEvent(name: "switch", value: "off")
+    //if(!skipHttp) { httpCall(path); }
     
-    return httpCall(path);
-}
-
-private buildPath(option, value, grp = 0) {
-	def path = ""
-    
-	if(grp == 0 || grp == null) {
-    	path = "$option/$value"
-    } else {
-    	path = "$option/$value/$grp"
-    }
-    
-    if(isDebug) { log.debug "MiLight device: ${mac}, built path: $path" }
-    
-    return path;
-}
-
-private buildColorPath(red, green, blue, hex, grp = 0) {
-	def path = ""
-    def value = ""
-    
-    value = "rgbw/color/r/$red/g/$green/b/$blue/hex/$hex"
-    
-	if(grp == 0 || grp == null) {
-    	path = "$value"
-    } else {
-    	path = "$value/$grp"
-    }
-    
-    if(isDebug) { log.debug "MiLight device: ${mac}, color path: $path" }
-    
-    return path;
-}
-
-private httpCall(path) {
-    def params = [
-        uri:  'http://lights.cloudsy.com:9292/v1/',
-        path: "$path",
-        contentType: 'application/json',
-        headers: [MAC:"$mac"]
-    ]
-    try {
-        httpGet(params) {resp ->
-            if(isDebug) { log.debug "MiLight device: ${mac}, raw data from cloud: ${resp.data}" }
-            parseResponse(resp)
-        }
-    } catch (e) {
-        log.error "error: $e"
-    }
+    log.debug "in device code, ${sendHttp}"
+   
+    return sendEvent(name: "switch", value: "off", data: [sendReq: sendHttp]);
 }
