@@ -92,20 +92,18 @@ def setLevel(percentage, boolean sendHttp = true) {
 }
 
 def setColor(value, boolean sendHttp = true) { 
-    setAdjustedColor(value, sendHttp)
+  	if(value in String) {
+        def j = value
+        sendEvent(name: 'color', value: j, data: [sendReq: sendHttp])
+    } else {
+    	def h = value.hex
+        sendEvent(name: 'color', value: h, data: [sendReq: sendHttp])
+    }
+	return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
 }
 
 def unknown() {
     sendEvent(name: "switch", value: "unknown")
-}
-
-def setAdjustedColor(value, boolean sendHttp = true) {
-
-	def h = value.hex
-    
-    sendEvent(name: 'color', value: h, data: [sendReq: sendHttp])
-
-	return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
 }
 
 def on(boolean sendHttp = true) {
