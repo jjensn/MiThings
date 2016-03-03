@@ -80,7 +80,6 @@ def initialize() {
     subscribe(myDevice, "switch.off", masterSwitchOffHandler)
     subscribe(myDevice, "poll", masterSwitchPollHandler)
     subscribe(myDevice, "level", masterSwitchLevelHandler)
-    //subscribe(myDevice, "testing", testingHandler)
     subscribe(myDevice, "color", masterSwitchColorHandler)
     subscribeToCommand(myDevice, "reload", masterSwitchReloadHandler)
     
@@ -154,7 +153,10 @@ def masterSwitchColorHandler(evt) {
     parent.httpCall(path, settings.macAddress, evt);
    
     getChildDevices().each {
-    	it.setColor(evt.value, false)
+    	if(it.getPreferences()["group"] != "0" && it.getPreferences()["group"] != null) {
+        	//log.debug "${it.name} / ${it.getPreferences()["group"]} / ${evt}"
+    		it.setColor(evt.value, false)
+        }
     }
 }
 
