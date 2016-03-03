@@ -13,6 +13,9 @@
  *  for the specific language governing permissions and limitations under the License.
  *
  */
+ 
+import groovy.json.JsonSlurper
+ 
 definition(
     name: "MiThings",
     namespace: "cloudsyjared",
@@ -40,7 +43,6 @@ def selectMiLight() {
             input "miLightName", "text", title: "MiLight hub name", description: "ie: Living Room Master Switch", required: true, submitOnChange: false
             input "macAddress", "text", title: "Hub MAC address", description: "Use format AA:BB:CC:DD:EE:FF", required: true, submitOnChange: false
 			input "howMany", "number", title: "How many zones?", required: true, submitOnChange: true
-            //input "createMaster", "bool", title: "Create master device?", description: "Controlls all the zones on the hub"
 		}
 		section("Zones") {
 			for (int i = 0; i < howMany; i++) {
@@ -62,18 +64,25 @@ def updated() {
 }
 
 def initialize() {
-	
-    state.myDevices = [:]
-    
+
     app.updateLabel("${settings.miLightName}")
     
     def deviceId = "${settings.macAddress}/0"
     def myDevice = getChildDevice(deviceId)
  	if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: "${settings.miLightName}", completedSetup: true])
 	myDevice = getChildDevice(deviceId)
-    myDevice.name = settings.miLightName
+
+	myDevice.name = settings.miLightName
     myDevice.label = settings.miLightName
-    myDevice.setPreferences(["mac": "${settings.macAddress}", "group":0, "isDebug": false])
+    myDevice.setPreferences(["mac": "${settings.macAddress}", "group":0])
+    
+    subscribe(myDevice, "switch.on", masterSwitchOnHandler)
+    subscribe(myDevice, "switch.off", masterSwitchOffHandler)
+    subscribe(myDevice, "poll", masterSwitchPollHandler)
+    subscribe(myDevice, "level", masterSwitchLevelHandler)
+    //subscribe(myDevice, "testing", testingHandler)
+    subscribe(myDevice, "color", masterSwitchColorHandler)
+    subscribeToCommand(myDevice, "reload", masterSwitchReloadHandler)
     
 	for (int i = 0 ; i < howMany; i++) {
         def thisName = settings.find {it.key == "dName$i"}
@@ -81,18 +90,150 @@ def initialize() {
         myDevice = getChildDevice(deviceId)
  		if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: thisName.value, completedSetup: true])
 		myDevice = getChildDevice(deviceId)
+        
+        subscribe(myDevice, "switch", zoneSwitchHandler)
+        /*subscribe(myDevice, "refresh", zoneRefreshHandler)*/
+        subscribe(myDevice, "level", zoneSwitchLevelHandler)
+        //subscribe(myDevice, "poll", zoneSwitchPollHandler))
+        subscribe(myDevice, "color", zoneSwitchColorHandler)
+        
         myDevice.name = thisName.value
         myDevice.label = thisName.value
-        myDevice.setPreferences(["mac": "${settings.macAddress}", "group":i + 1, "isDebug": false])
+        myDevice.setPreferences(["mac": "${settings.macAddress}", "group":i + 1])
     }
 }
 
 def uninstalled() {
-    removeChildDevices(getChildDevices())
+//    removeChildDevices(getChildDevices())
 }
 
 private removeChildDevices(delete) {
     delete.each {
-        deleteChildDevice(it.deviceNetworkId)
+        //deleteChildDevice(it.deviceNetworkId)
     }
+}
+
+def masterSwitchOnHandler(evt) {
+	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.macAddress} / ${evt.device.name}" }
+    
+    def path = parent.buildPath("rgbw", "on", evt);
+    parent.httpCall(path, settings.macAddress, evt);
+    
+    getChildDevices().each {
+    	it.on(false)
+    }
+}
+
+def masterSwitchOffHandler(evt) {
+	if(parent.settings.isDebug) { log.debug "master switch off! ${settings.macAddress} / ${evt.device.name}" }
+    
+    def path = parent.buildPath("rgbw", "off", evt);
+    parent.httpCall(path, settings.macAddress, evt);
+   
+    getChildDevices().each {
+    	it.off(false)
+    }
+}
+
+def masterSwitchLevelHandler(evt) {
+	if(parent.settings.isDebug) { log.debug "master switch set level! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
+    
+    def path = parent.buildPath("rgbw/brightness", evt.value.toInteger(), evt);
+    parent.httpCall(path, settings.macAddress, evt);
+   
+    getChildDevices().each {
+    	it.setLevel(evt.value.toInteger(), false)
+    }
+}
+
+def masterSwitchColorHandler(evt) {
+	if(parent.settings.isDebug) { log.debug "master color set! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
+     
+    def path = parent.buildPath("rgbw/hex", evt.value, evt);
+
+    parent.httpCall(path, settings.macAddress, evt);
+   
+    getChildDevices().each {
+    	it.setColor(evt.value, false)
+    }
+}
+
+def masterSwitchReloadHandler(evt) {
+	log.debug "in master reload"
+}
+
+def testingHandler() {
+	 log.debug "refresh! ${settings.macAddress} / ${evt.device.name} ${evt.value}!"
+    
+    //parent.httpCall(buildPath("rgbw", "status", group))
+}
+
+def zoneSwitchHandler(evt) {
+	if(parent.settings.isDebug) { log.debug "Zone switch changed state! ${evt.value}!" }
+    
+    def jsonObj = new JsonSlurper().parseText( evt.data )
+    
+    if(jsonObj.sendReq == true) {
+	    def deviceId = "${settings.macAddress}/0"
+    	def myDevice = getChildDevice(deviceId)
+    
+        if(myDevice) {
+            myDevice.unknown()
+        }
+        
+        def path = parent.buildPath("rgbw", evt.value, evt);
+    	parent.httpCall(path, settings.macAddress, evt);
+    }
+       
+    /*if(evt.value == "on") {
+    	//evt.device.on()
+    } else if(evt.value == "off") {
+    	//evt.device.off()
+    }*/
+}
+
+def zoneSwitchLevelHandler(evt) {
+	if(parent.settings.isDebug) { log.debug "Zone switch changed level! ${evt.value}!" }
+    
+    def jsonObj = new JsonSlurper().parseText( evt.data )
+    
+    if(jsonObj.sendReq == true) {
+	    def deviceId = "${settings.macAddress}/0"
+    	def myDevice = getChildDevice(deviceId)
+    
+        if(myDevice) {
+            myDevice.unknown()
+        }
+        
+        def path = parent.buildPath("rgbw/brightness", evt.value.toInteger(), evt);
+    	parent.httpCall(path, settings.macAddress, evt);
+	}
+            
+    /*switch(evt.value) {
+  		case "on" : evt.device.on()
+        case "off": evt.device.off()
+	}*/
+}
+
+def zoneSwitchColorHandler(evt) {
+	if(parent.settings.isDebug) { log.debug "Zone switch color change! ${evt.value}!" }
+    
+    def jsonObj = new JsonSlurper().parseText( evt.data )
+    
+    if(jsonObj.sendReq == true) {
+	    def deviceId = "${settings.macAddress}/0"
+    	def myDevice = getChildDevice(deviceId)
+    
+        if(myDevice) {
+            myDevice.unknown()
+        }
+        
+		def path = parent.buildPath("rgbw/hex", evt.value, evt);
+		parent.httpCall(path, settings.macAddress, evt);
+	}
+            
+    /*switch(evt.value) {
+  		case "on" : evt.device.on()
+        case "off": evt.device.off()
+	}*/
 }
