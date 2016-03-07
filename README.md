@@ -17,7 +17,8 @@ Supports: RGBW bulbs ONLY. Features supported are On / Off / Dim (1-100) / Color
 
 *There is no support for MiLight RGB bulbs or warm/cool lights at this time.*
 
-#### Installation instructions are here: https://github.com/cloudsyjared/SmartThings-MiLight/blob/master/INSTALL.md
+#### Installation instructions are here: 
+#####https://github.com/cloudsyjared/SmartThings-MiLight/blob/master/INSTALL.md
 
 
 **IMPORTANT**: The cloud API I built this weekend is in ALPHA phase. It is not production ready yet. I will be upgrading the code as time permits to add things like authentication, state saving, and other features. It also may crash, since I've only tested it with one MiLight bridge (mine). Don't expect much. If you want to contribute to this project, I need help with the SmartThings code. The source is available on the github repo. Please fork it and submit a pull request when ready.
