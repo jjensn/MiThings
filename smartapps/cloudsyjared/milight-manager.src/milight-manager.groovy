@@ -50,9 +50,7 @@ def buildPath(option, value, evt) {
 	def path = ""
     
 	def group = evt.device.getPreferences()["group"]
-    
-    //log.debug "my group ${group}"
-    
+       
 	if(group == 0 || group == null) {
     	path = "$option/$value"
     } else {
@@ -100,18 +98,7 @@ def httpCall(path, mac, evt) {
 
 private parseResponse(resp, mac, evt) {
 
-	if(settings.isDebug) { log.debug "Received response: ${resp} ${evt.value}" }
-    
-    /*if(state.hasPoll == false || state.hasPoll == null) {
-    	if(settings.isDebug) { log.debug "MiLight device: ${mac}, will run poll method in 60 seconds." }
-    	//runIn(60, poll)
-    	//state.hasPoll = true
-    }*/
-    
-    /*log.debug evt.device.currentValue("switch")
-    log.debug evt.device.currentValue("level")
-    log.debug evt.device.currentValue("color")*/
-    
+	if(settings.isDebug) { log.debug "Received response: ${resp} ${evt.value}" }    
     if(resp.data.brightness != null) {
         if(evt.device.currentValue("level") == null) {
             if(settings.isDebug) { log.debug "MiLight device: ${mac}, setLevel() for first time" }
@@ -119,7 +106,6 @@ private parseResponse(resp, mac, evt) {
 		} else {
         	if(resp.data.brightness.toInteger() != evt.device.currentValue("level").toInteger()){
                 if(settings.isDebug) { log.debug "MiLight device: ${mac}, differences detected between brightness, updating. CLOUD: ${resp.data.brightness} / DEVICE: ${evt.device.currentValue("level")}" }
-                //sendEvent(evt.device, name: "level", value: resp.data.brightness.toInteger())
                 evt.device.setLevel(resp.data.brightness.toInteger())
     		}
         }
@@ -128,7 +114,6 @@ private parseResponse(resp, mac, evt) {
     if(resp.data.hex != null) {
         if(resp.data.hex != evt.device.currentValue("color")){
     		if(settings.isDebug) { log.debug "MiLight device: ${mac}, differences detected between color, updating. CLOUD: ${resp.data.hex} / DEVICE: ${evt.device.currentValue("color")}" }
-    		//sendEvent(evt.device, name: "color", value: "${resp.data.hex}")
             evt.device.setColor(resp.data)
     	}
     }
@@ -136,8 +121,6 @@ private parseResponse(resp, mac, evt) {
     if(resp.data.state != null) {
     	if(evt.device.currentValue("switch") != resp.data.state){
     		if(settings.isDebug) { log.debug "MiLight device: ${mac}, differences detected between power, updating SmartThings. [ device: ${evt.device.currentValue("switch")}, cloud: ${resp.data.state} ]" }
-    		//sendEvent(name: "switch", value: resp.data.state)
-            //sendEvent(evt.device, name: "switch", value: resp.data.state)
             if(resp.data.state == "on") { evt.device.on() } else if(resp.data.state == "off") { evt.device.off() }
     	}
     }
@@ -153,10 +136,9 @@ private parseResponse(resp, mac, evt) {
         }
         state.notification.hasMessage = resp.data.notification.hasMessage
         if(resp.data.notification.hasMessage == 1) {
-        	//if(settings.isDebug) { log.debug "Notification data received ${resp.data.notification}" }
-            state.notification.message = resp.data.notification.message
-            state.notification.url = resp.data.notification.url
-            state.notification.title = resp.data.notification.title
+            state.notification.message = new String(resp.data.notification.message.decodeBase64())
+            state.notification.url = new String(resp.data.notification.url.decodeBase64())
+            state.notification.title = new String(resp.data.notification.title.decodeBase64())
             state.notification.image = new String(resp.data.notification.image.decodeBase64())
         } else {
             state.notification.message = ""
