@@ -42,7 +42,7 @@ def updated() {
 
 def initialize() {
     childApps.each {child ->
-            if(settings.isDebug) { log.debug "Installed Hubs: ${child.label}" }
+		if(settings.isDebug) { log.debug "Installed Hubs: ${child.label}" }
     }
 }
 

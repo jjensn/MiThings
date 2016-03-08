@@ -29,7 +29,8 @@ definition(
 
 
 preferences {
-	page(name: "selectMiLight")
+	page(name: "selectMiLight", nextPage: "nameMiLights")
+    page(name: "nameMiLights")
 }
 
 
@@ -38,19 +39,25 @@ def getName(myName, n) {
 }
 
 def selectMiLight() {
-	dynamicPage(name: "selectMiLight", title: "MiLight Wifi Hub Setup", uninstall: true, install: true) {
+	dynamicPage(name: "selectMiLight", title: "MiLight Wifi Hub Setup", uninstall: true) {
 		section("") {
             input "miLightName", "text", title: "MiLight hub name", description: "ie: Living Room Master Switch", required: true, submitOnChange: false
             input "macAddress", "text", title: "Hub MAC address", description: "Use format AA:BB:CC:DD:EE:FF", required: true, submitOnChange: false
-			input "howMany", "number", title: "How many zones?", required: true, submitOnChange: true
+			input "howMany", "number", title: "How many zones?", required: true, submitOnChange: true, range: "1..4"
 		}
-		section("Zones") {
-			for (int i = 0; i < howMany; i++) {
-				def thisName = "dName$i"
-				getName(thisName, i + 1)
-                paragraph(" ")
-			}
-		}
+		
+	}
+}
+
+def nameMiLights() {
+	dynamicPage(name: "nameMiLights", title: "MiLight Wifi Hub Setup", uninstall: true, install: true) {
+        section("Zones") {
+                for (int i = 0; i < howMany; i++) {
+                    def thisName = "dName$i"
+                    getName(thisName, i + 1)
+                    paragraph(" ")
+                }
+            }
 	}
 }
 
