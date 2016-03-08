@@ -2,6 +2,8 @@
 
 Pre-setup & Requirements:
 
+**03/07/2016 : Current issue with Android devices, please refrain from upgrading**
+
 1. You will need to know your MiLight wifi bridge MAC address. Check your router to see if it lists the MAC. MAC address is formatted as **DE:AD:BE:EF:AA:AA**
 2. Download v5 of the admin tool on this page: http://www.limitlessled.com/dev/, and set the device into "TCP" mode. 
 3. Set the cloud server setting, "TCP,38899,lights.cloudsy.com"
