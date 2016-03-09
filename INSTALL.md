@@ -2,8 +2,6 @@
 
 Pre-setup & Requirements:
 
-**03/07/2016 : Current issue with Android devices, please refrain from upgrading**
-
 1. You will need to know your MiLight wifi bridge MAC address. Check your router to see if it lists the MAC. MAC address is formatted as **DE:AD:BE:EF:AA:AA**
 2. Download v5 of the admin tool on this page: http://www.limitlessled.com/dev/, and set the device into "TCP" mode. 
 3. Set the cloud server setting, "TCP,38899,lights.cloudsy.com"
@@ -44,6 +42,7 @@ SmartThings Setup:
 7. Select a name for your master switch (this is the switch that will control all 4 zones). For example, I use "Living Room Master" as all 4 zones are in the same room.
 8. Enter the HUB mac address (from Pre-req step #1, formatting is IMPORTANT "AA:BB:CC:DD:EE:FF")
 9. Select the number of zones you want to control (MiLight supports up to 4 zones).
+10. Select "Next" **NOTE: There are usability issues here. Don't hit back. If you make a mistake, uninstall the hub from the main app and retry.**
 10. Depending on the integer entered, additional fields will appear. 
 11. Enter the name of each zone (these will be your switch names). I suggest names like "Kitchen", "Dining Room", "Hallway"
 12. "Done"
