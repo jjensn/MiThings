@@ -15,7 +15,7 @@ MiLight / LimitlessLED / EasyBulb integration with SmartThings
 
 Supports: RGBW bulbs ONLY. Features supported are On / Off / Dim (1-100) / Colors
 
-*There is no support for MiLight RGB bulbs or warm/cool lights at this time.*
+*There is no support for (the OLD) MiLight RGB-ONLY bulbs or warm/cool lights at this time.*
 
 #### Installation instructions are here: 
 #####https://github.com/cloudsyjared/SmartThings-MiLight/blob/master/INSTALL.md
