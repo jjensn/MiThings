@@ -66,18 +66,14 @@ def poll() {
 }
 
 def parse(String description) {
-    //if(isDebug) { log.debug "MiLight device: ${mac}, parse description ${description}" }
     parseResponse(description)
 }
 
 private parseResponse(String resp) {
-	
-     log.debug "Received response: ${resp}"
+
 }
 
 private parseResponse(resp) {
-	
-    log.debug "Received response: ${resp.data}" 
 }
 
 def setLevel(percentage, boolean sendHttp = true) {
