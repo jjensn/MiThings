@@ -43,16 +43,27 @@ def selectMiLight() {
 		section("") {
             input "miLightName", "text", title: "MiLight hub name", description: "ie: Living Room Master Switch", required: true, submitOnChange: false
             input "macAddress", "text", title: "Hub MAC address", description: "Use format AA:BB:CC:DD:EE:FF", required: true, submitOnChange: false
-			input "howMany", "number", title: "How many zones?", required: true, submitOnChange: true, range: "1..4"
+			input "zoneCount", "enum", title: "How many zones?", required: true, options: ["1", "2", "3", "4"], submitOnChange: true
 		}
 		
 	}
 }
 
 def nameMiLights() {
+	def howMany = 1
+	if(zoneCount == "1") {
+    	state.howMany = 1
+    } else if(zoneCount == "2") {
+    	state.howMany = 2
+    } else if(zoneCount == "3") {
+    	state.howMany = 3
+    } else if(zoneCount == "4") {
+    	state.howMany = 4
+    }
+    
 	dynamicPage(name: "nameMiLights", title: "MiLight Wifi Hub Setup", uninstall: true, install: true) {
         section("Zones") {
-                for (int i = 0; i < howMany; i++) {
+                for (int i = 0; i < state.howMany; i++) {
                     def thisName = "dName$i"
                     getName(thisName, i + 1)
                     paragraph(" ")
@@ -88,9 +99,9 @@ def initialize() {
     subscribe(myDevice, "poll", masterSwitchPollHandler)
     subscribe(myDevice, "level", masterSwitchLevelHandler)
     subscribe(myDevice, "color", masterSwitchColorHandler)
-    subscribeToCommand(myDevice, "reload", masterSwitchReloadHandler)
+    subscribeToCommand(myDevice, "refresh", masterSwitchRefreshHandler)
     
-	for (int i = 0 ; i < howMany; i++) {
+	for (int i = 0 ; i < state.howMany; i++) {
         def thisName = settings.find {it.key == "dName$i"}
     	deviceId = "${settings.macAddress}/${i+1}"
         myDevice = getChildDevice(deviceId)
@@ -98,7 +109,7 @@ def initialize() {
 		myDevice = getChildDevice(deviceId)
         
         subscribe(myDevice, "switch", zoneSwitchHandler)
-        /*subscribe(myDevice, "refresh", zoneRefreshHandler)*/
+        subscribeToCommand(myDevice, "refresh", zoneSwitchRefreshHandler)
         subscribe(myDevice, "level", zoneSwitchLevelHandler)
         //subscribe(myDevice, "poll", zoneSwitchPollHandler))
         subscribe(myDevice, "color", zoneSwitchColorHandler)
@@ -161,16 +172,17 @@ def masterSwitchColorHandler(evt) {
    
     getChildDevices().each {
     	if(it.getPreferences()["group"] != "0" && it.getPreferences()["group"] != null) {
-        	//log.debug "${it.name} / ${it.getPreferences()["group"]} / ${evt}"
     		it.setColor(evt.value, false)
         }
     }
 }
 
-def masterSwitchReloadHandler(evt) {
-	log.debug "in master reload"
+def masterSwitchRefreshHandler(evt) {
+	if(parent.settings.isDebug) { log.debug "Master switch command : refresh !" }
+    
+    def path = parent.buildPath("rgbw", "status", evt);
+	parent.httpCall(path, settings.macAddress, evt);
 }
-
 def zoneSwitchHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "Zone switch changed state! ${evt.value}!" }
     
@@ -223,4 +235,11 @@ def zoneSwitchColorHandler(evt) {
 		def path = parent.buildPath("rgbw/hex", evt.value, evt);
 		parent.httpCall(path, settings.macAddress, evt);
 	}
+}
+
+def zoneSwitchRefreshHandler(evt) {
+	if(parent.settings.isDebug) { log.debug "Zone switch command : refresh !" }
+    
+    def path = parent.buildPath("rgbw", "status", evt);
+	parent.httpCall(path, settings.macAddress, evt);
 }
