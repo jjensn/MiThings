@@ -9,12 +9,6 @@ MiLight / LimitlessLED / EasyBulb integration with SmartThings
 
 05/13/2016: Dockerized the cloud server components, formalized API calls, better status checking, updated cloud endpoint
 
-*Previous releases*
-
-03/03/2016: A major release is being pushed out. All users must upgrade to keep functionality within the coming months.
-
-01/03/2016: The latest changes have been made to the API code which now support routines. I found that, for dimming to work, you need to set the bulbs on AND set the dim level for SmartThings to execute the dim command. This is a SmartThings related problem.
-
 ===================
 
 Supports: RGBW bulbs ONLY. Features supported are On / Off / Dim (1-100) / Colors
