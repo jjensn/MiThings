@@ -133,7 +133,7 @@ private removeChildDevices(delete) {
 def masterSwitchOnHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.macAddress} / ${evt.device.name}" }
     
-    def path = parent.buildPath("rgbw", "on", evt);
+    def path = parent.buildPath("rgbw/power", "on", evt);
     parent.httpCall(path, settings.macAddress, evt);
     
     getChildDevices().each {
@@ -144,7 +144,7 @@ def masterSwitchOnHandler(evt) {
 def masterSwitchOffHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch off! ${settings.macAddress} / ${evt.device.name}" }
     
-    def path = parent.buildPath("rgbw", "off", evt);
+    def path = parent.buildPath("rgbw/power", "off", evt);
     parent.httpCall(path, settings.macAddress, evt);
    
     getChildDevices().each {
@@ -166,7 +166,7 @@ def masterSwitchLevelHandler(evt) {
 def masterSwitchColorHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master color set! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
      
-    def path = parent.buildPath("rgbw/hex", evt.value, evt);
+    def path = parent.buildPath("rgbw/color", evt.value, evt);
 
     parent.httpCall(path, settings.macAddress, evt);
    
@@ -196,7 +196,7 @@ def zoneSwitchHandler(evt) {
             myDevice.unknown()
         }
         
-        def path = parent.buildPath("rgbw", evt.value, evt);
+        def path = parent.buildPath("rgbw/power", evt.value, evt);
     	parent.httpCall(path, settings.macAddress, evt);
     }
 }
@@ -232,7 +232,7 @@ def zoneSwitchColorHandler(evt) {
             myDevice.unknown()
         }
         
-		def path = parent.buildPath("rgbw/hex", evt.value, evt);
+		def path = parent.buildPath("rgbw/color", evt.value, evt);
 		parent.httpCall(path, settings.macAddress, evt);
 	}
 }
