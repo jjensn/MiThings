@@ -3,11 +3,11 @@ MiLight / LimitlessLED / EasyBulb integration with SmartThings
 
 *Latest news:*
 
-05/13/2016: Introducing breaking changes to the cloud API, all users must update.
+05/13/2016: Introducing breaking changes to the cloud API, all users must update. Infrastructure has been fully changed and is now in a self healing docker host.
 
 *Release notes*
 
-05/13/2016: Dockerized the cloud server components, formalized API calls, better status checking, updated cloud endpoint
+05/13/2016: Formalized API calls, better status checking, updated cloud endpoint (adding support for port 80)
 
 ===================
 
