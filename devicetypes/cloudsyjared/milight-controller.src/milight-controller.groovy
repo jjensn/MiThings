@@ -22,8 +22,7 @@ metadata {
         capability "Polling"
         capability "Sensor"
         capability "Refresh" 
-        
-        command "reload"        
+               
         command "unknown"
 	}
     
@@ -52,8 +51,8 @@ metadata {
 			}
 		}
         
-        standardTile("refresh", "device.testing", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"testing", icon:"st.secondary.refresh"
+        standardTile("refresh", "device.refresh", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
         }
        
 		main(["switch"])
@@ -70,7 +69,6 @@ def parse(String description) {
 }
 
 private parseResponse(String resp) {
-
 }
 
 private parseResponse(resp) {
@@ -103,10 +101,13 @@ def unknown() {
 }
 
 def on(boolean sendHttp = true) {
-        
     return sendEvent(name: "switch", value: "on", data: [sendReq: sendHttp])
 }
 
 def off(boolean sendHttp = true) {
     return sendEvent(name: "switch", value: "off", data: [sendReq: sendHttp]);
+}
+
+def refresh() {
+	return sendEvent(name: "refresh")
 }

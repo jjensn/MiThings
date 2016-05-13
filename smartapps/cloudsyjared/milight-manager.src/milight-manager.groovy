@@ -64,7 +64,7 @@ def buildPath(option, value, evt) {
 
 def buildColorPath(hex, evt) {
 	def path = ""    
-    def value = "rgbw/hex/$hex"
+    def value = "rgbw/color/$hex"
     
     def group = evt.device.getPreferences()["group"]
     
@@ -81,7 +81,7 @@ def buildColorPath(hex, evt) {
 
 def httpCall(path, mac, evt) {
     def params = [
-        uri:  'http://lights.cloudsy.com:9292/v1/',
+        uri:  'http://lights.cloudsy.com/v1/',
         path: "$path",
         contentType: 'application/json',
         headers: [MAC:"$mac"]
@@ -118,10 +118,10 @@ private parseResponse(resp, mac, evt) {
     	}
     }
     
-    if(resp.data.state != null) {
-    	if(evt.device.currentValue("switch") != resp.data.state){
-    		if(settings.isDebug) { log.debug "MiLight device: ${mac}, differences detected between power, updating SmartThings. [ device: ${evt.device.currentValue("switch")}, cloud: ${resp.data.state} ]" }
-            if(resp.data.state == "on") { evt.device.on() } else if(resp.data.state == "off") { evt.device.off() }
+    if(resp.data.power != null) {
+    	if(evt.device.currentValue("switch") != resp.data.power){
+    		if(settings.isDebug) { log.debug "MiLight device: ${mac}, differences detected between power, updating SmartThings. [ device: ${evt.device.currentValue("switch")}, cloud: ${resp.data.power} ]" }
+            if(resp.data.power == "on") { evt.device.on() } else if(resp.data.power == "off") { evt.device.off() }
     	}
     }
         
