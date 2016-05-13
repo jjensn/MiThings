@@ -3,9 +3,9 @@
 Pre-setup & Requirements:
 
 1. You will need to know your MiLight wifi bridge MAC address. Check your router to see if it lists the MAC. MAC address is formatted as **DE:AD:BE:EF:AA:AA**
-2. Download v5 of the admin tool on this page: http://www.limitlessled.com/dev/, and set the device into "TCP" mode. 
+2. Download v5 of the admin tool on this page: http://www.limitlessled.com/dev/ 
 3. Set the cloud server setting, "TCP,38899,lights.cloudsy.com"
-4. Set the IP to a static IP so that it doesn't change. Commit the changes by clicking the TCP button, and rebooting the wifi controller. 
+4. Set the IP to a static IP so that it doesn't change. Commit the changes by clicking the "Set Cloud Server", and rebooting the wifi controller. 
 5. And finally, you must have paired the lights (zones) with the wifi controller already using the native app. With the delay in SmartThings execution, this code is not able to pair bulbs with zones. Take note of zones 1-4 for each controller as you will need to label them in the final steps.
 
 Validating:
