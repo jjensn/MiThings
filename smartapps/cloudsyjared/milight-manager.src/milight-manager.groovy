@@ -65,7 +65,6 @@ def buildPath(option, value, evt) {
 def buildColorPath(hex, evt) {
 	def path = ""    
     def value = "rgbw/color/$hex"
-    
     def group = evt.device.getPreferences()["group"]
     
 	if(group == 0 || group == null) {
