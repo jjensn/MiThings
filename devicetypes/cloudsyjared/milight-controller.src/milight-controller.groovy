@@ -75,13 +75,10 @@ private parseResponse(resp) {
 }
 
 def setLevel(percentage, boolean sendHttp = true) {
-    
     if (percentage < 1 && percentage > 0) {
 		percentage = 1
 	}
-        
-    sendEvent(name: 'level', value: percentage, data: [sendReq: sendHttp])
-    
+    sendEvent(name: 'level', value: percentage, data: [sendReq: sendHttp]) 
     return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
 }
 

@@ -121,12 +121,10 @@ def initialize() {
 }
 
 def uninstalled() {
-//    removeChildDevices(getChildDevices())
 }
 
 private removeChildDevices(delete) {
     delete.each {
-        //deleteChildDevice(it.deviceNetworkId)
     }
 }
 

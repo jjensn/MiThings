@@ -1,28 +1,67 @@
-# SmartThings-MiLight
+# MiThings
 MiLight / LimitlessLED / EasyBulb integration with SmartThings
 
-*Latest news:*
+https://jjensn.github.io/MiThings/
 
-05/13/2016: Introducing breaking changes to the cloud API, all users must update. Infrastructure has been fully changed and is now in a self healing docker host.
+### Latest news:
 
-*Release notes*
+#####**11/16/2016:**
+Reached my 150$ hard cap for the month in the cloud. Services will resume next billing period (next week).
 
-05/13/2016: Formalized API calls, better status checking, updated cloud endpoint (adding support for port 80)
+#####**10/20/2016:**
 
-===================
+~~Moving infrastructure away from DigialOcean/OVH to Azure. Expect some downtime!~~
 
-Supports: RGBW bulbs ONLY. Features supported are On / Off / Dim (1-100) / Colors
+The move didn't go as smooth as I had planned, and I was forced to roll out version 2.0 early. The old cloud code wasn't handling the 100s of connections from my monitoring suite.
 
-*There is no support for (the OLD) MiLight RGB-ONLY bulbs or warm/cool lights at this time.*
+Everyone's lights probably went a little crazy -- sorry about that. I'll remember for next time.
 
-#### Installation instructions are here: 
-#####https://github.com/cloudsyjared/SmartThings-MiLight/blob/master/INSTALL.md
+Users: I've made endpoint changes to the SmartThings app. You'll need to edit the line, or do a Git pull from the UI to update.
 
+File: smartapps/cloudsyjared/milight-manager.src/milight-manager.groovy
 
-**IMPORTANT**: The cloud API I built is in ALPHA phase. It is not production ready yet. I will be upgrading the code as time permits to add things like authentication, state saving, and other features. It also may crash, since I've only tested it with one MiLight bridge (mine). Don't expect much. If you want to contribute to this project, I need help with the SmartThings code. The source is available on the github repo. Please fork it and submit a pull request when ready.
+Line 84: ```uri:  'https://lights.cloudsy.com/v1/',```
 
-Bug reports: Please submit on Github, the logs, and what version of the device code you are using.
+Needs to be changed to:
+
+```uri:  'https://api.mithings.pw/v1/'```
+
+There is a new cloud server endpoint, please update your hubs:
+
+**TCP,38899,cloud.mithings.pw**
+
+Issues? Post them on Github.
+
+#####**05/13/2016:**
+
+Introducing breaking changes to the cloud API, all users must update. Infrastructure has been fully changed and is now in a self healing docker host.
+
+***
+
+### Release notes
+
+#####**05/13/2016:**
+
+Formalized API calls, better status checking, updated cloud endpoint (adding support for port 80)
+
+***
+
+### Installation instructions & footnotes:
+
+#####**Installation:**
+
+https://github.com/jjensn/MiThings/blob/master/INSTALL.md
+
+#####**Supports:**
+
+RGBW bulbs ONLY. Features supported are On / Off / Dim (1-100) / Colors
+
+#####**Bug reports:**
+
+Please submit on Github, the logs, and what version of the device code you are using.
+
+***
+
+### Thanks & Contributors!
 
 A big thank you to all the gurus on the SmartThings forums who laid the groundwork before me.
-
-It will be updated as the project matures. You should be able to add it with SmartThings github integration, and update as I update the master branch.
