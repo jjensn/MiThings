@@ -1,0 +1,15 @@
+**Credits:**
+
+- Bootstrap - http://getbootstrap.com
+- jQuery - http://jquery.com
+- HTML5Shiv - @afarkas @jdalton @jon_neal @rem
+- Respond - Authors & copyright (c) 2012: Scott Jehl, Paul Irish, Nicholas Zakas.
+- Pattern - http://subtlepatterns.com/
+- Font awesome icon - http://fortawesome.github.io/Font-Awesome/
+- Photos - http://pixabay.com
+- prettyPhoto - http://www.no-margin-for-errors.com
+- Isotope - http://isotope.metafizzy.co/
+- Flex Slider - http://www.woothemes.com/flexslider/
+- Revolution Slider - http://codecanyon.net/item/slider-revolution-responsive-jquery-plugin/2580848
+- carouFredSel - http://dev7studios.com/plugins/caroufredsel/
+- RefineSlide - http://github.com/alexdunphy/refineslide

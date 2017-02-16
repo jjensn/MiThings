@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Title here -->
+		<title>Documentation</title>
+		<!-- Description, Keywords and Author -->
+		<meta name="description" content="Your description">
+		<meta name="keywords" content="Your,Keywords">
+		<meta name="author" content="ResponsiveWebInc">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<!-- Styles -->
+		<!-- Bootstrap CSS -->
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<!-- Font awesome CSS -->
+		<link href="css/font-awesome.min.css" rel="stylesheet">		
+		<!-- Custom CSS -->
+		<link href="css/style.css" rel="stylesheet">
+		
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="#">
+	</head>
+	
+	<body>
+
+		
+		<div class="container">
+			<div class="main">
+				<div class="row">
+					<div class="col-md-2">
+					
+						<div class="sidebar">
+							<!-- Project name -->
+							<h3>MecBeath</h3>
+							<ul>
+								<li><a href="#home">Home</a></li>
+								<li><a href="#files">File Structure</a></li>
+								<li><a href="#editing">Editing</a></li>
+								<li><a href="#fonts">Fonts & Icons</a></li>
+								<li><a href="#add-page">Add New Page</a></li>
+								<li><a href="#navigation">Navigation</a></li>
+								<li><a href="#logo">Logo</a></li>
+								<li><a href="#footer">Footer</a></li>
+								<li><a href="#elements">Elements</a></li>
+								<li><a href="#plugins">Plugins</a></li>
+							</ul>
+						</div>
+						
+					</div>
+					<div class="col-md-10">
+					
+						<div class="mainbar">
+						
+						
+						
+							<!-- Home -->
+							<h3 id="home">Documentation Overview</h3>
+								
+								<p>To edit this theme, basic knowledge about HTML, CSS, JS & Bootstrap is required. You can learn HTML, CSS and JS from <a href="http://www.w3schools.com/">W3Schools</a>. You can learn Bootstrap by visiting <a href="http://getbootstrap.com/">official site</a>.</p>
+								
+								
+								<div class="alert alert-danger"><strong>Note:</strong> Before you make any changes, take a backup of all files and folders.</div>
+							
+								
+							<hr />
+							
+
+
+<!----------------------------------------------------------------------------------------------------------->														
+							
+							
+							
+							<!-- File structure -->
+							<h3 id="files">File Structure</h3>
+							
+								<p>Theme consists of 3 main folders namely <em>css, img & js</em>. <br />
+								Inside <em>css</em> folder you will find styles used in this theme. <em>style.css</em> is the main stylesheet. <br />
+								Inside <em>img</em> folder you will find all images used in the theme.<br />
+								Inside <em>js</em> folder you will find all Javascript files. <em>custom.js</em> is the main js file.
+								</p>
+							
+							<hr />
+							
+
+
+<!----------------------------------------------------------------------------------------------------------->							
+
+							
+							
+							<!-- Editing -->
+							<h3 id="editing">Editing</h3>
+							
+								<p>To edit files you need any code editor. I recommend using Notepad++.</p>
+								
+								<strong>Add Custom Styles</strong>
+								<p>To add custom styles, create new style sheet in <em>css</em> folder. Include the style file before the closing tag of <code>&lt;head&gt;</code>. Make sure that you are including this new file after <em>style.css</em></p>
+								<p>If you want to add any extra CSS files, copy the file to <em>css</em> folder and link it before <em>style.css</em>.</p>
+								
+								<pre>
+&lt;link href=&quot;css/FILE-NAME.css&quot; rel=&quot;stylesheet&quot;&gt;									
+								</pre>
+								
+								<hr />
+								
+								<strong>Add Custom JavaScript</strong>
+								<p>To add JS, just create a new java script file in <em>js</em> folder. Include the newly created js file before the closing tag of <code>&lt;body&gt;</code>. Make sure that you are including this new file after <em>custom.js</em>. Alternatively you can also include Javascript code directly to the html file by enclosing the code in <code>&lt;script&gt; ...your code... &lt;/script&gt;</code> and adding this above the closing tag of <code>&lt;body&gt;</code></p>
+								<p>If you want to add any extra JS files, copy the file to <em>js</em> folder and link it before <em>custom.js</em>.</p>
+
+								<pre>
+&lt;script src=&quot;js/FILE-NAME.js&quot;&gt;&lt;/script&gt;								
+								</pre>
+							
+								<hr />
+								
+								<strong>Editing HTML</strong>
+								<p>Almost all html codes in this theme are neatly commented. All you need to do is to read the comment and modify the content based on your need.</p>
+								
+								<hr />
+								
+								
+							
+<!----------------------------------------------------------------------------------------------------------->
+														
+			
+							<!-- Fonts -->
+							<h3 id="fonts">Fonts</h3>
+							
+								<p>This theme uses <a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome Icons</a> for Icons and <a href="http://www.google.com/fonts">Google Web Fonts</a> for Fonts.</p>
+								
+								<!-- Icon font -->
+								<strong>Icon Font</strong>
+								<p>Refer <a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome Icons</a> for list of fonts. To use any fonts in the theme, you need to use the following code.</p>
+								
+								<pre>
+/* Latest version */
+&lt;i class=&quot;fa fa-XXXX&quot;&gt;&lt;/i&gt;
+								</pre>
+								
+								
+								<hr />
+								
+								
+								<!-- Web Font -->
+								<strong>Web Font</strong>
+								<p>This theme uses <em>Open Sans</em>. To add or change font visit <a href="http://www.google.com/fonts">Google Web Fonts</a>, Choose the font, Copy the <em>@import</em> code. Paste it in top of your <em>stylesheet</em>.</p>
+								
+								<pre>
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600);
+								</pre>
+							
+								<hr />
+							
+							
+							
+<!----------------------------------------------------------------------------------------------------------->	
+
+
+
+							<!-- XXXXXXXXXXXXXXXXXXXX -->
+							<!-- If the theme is single page theme, then remove this. -->
+							<h3 id="add-page">Add New Page</h3>
+								<p>This theme comes with <em>0-base.html</em> file. This is the base file using which you can create you own page. Create a copy of the page, rename it and open in Text editor. Edit the title in <code>&lt;title&gt;</code> section. Change heading and add your content. Done.</p>
+								
+								<strong>Add Content</strong>
+								<pre>
+&lt;!-- Page heading starts --&gt;
+&lt;div class=&quot;page-head&quot;&gt;
+	&lt;div class=&quot;container&quot;&gt;
+		&lt;h2&gt;<b>Page Title</b>&lt;/h2&gt;
+		&lt;h4&gt;<b>something Type Here...</b>&lt;/h4&gt;
+	&lt;/div&gt;
+&lt;/div&gt;
+&lt;!--/ Page Heading ends --&gt;
+
+&lt;!-- Page content starts --&gt;
+&lt;div class=&quot;content&quot;&gt;
+	<b>&lt;!-- Your Page Content Here... --&gt;</b>
+&lt;/div&gt;
+&lt;!--/ Page content ends --&gt;
+								</pre>
+								
+								<hr />
+							
+							
+<!----------------------------------------------------------------------------------------------------------->
+
+
+							<!-- Logo -->
+							<h3 id="logo">Logo</h3>
+								<p>Below code shows the markup of <em>Logo</em> area. You can also use images for logo. Just play with HTML. I reommend using PNG images for logo.</p>
+								
+								<pre>
+ &lt;!-- Logo. Use class &quot;color&quot; to add color to the text. --&gt;
+&lt;div class=&quot;logo&quot;&gt;
+	&lt;h1&gt;&lt;a href=&quot;<b>#</b>&quot;&gt;<b>LOGO</b>&lt;span class=&quot;color bold&quot;&gt;<b>LOGO</b>&lt;/span&gt;&lt;/a&gt;&lt;/h1&gt;
+	&lt;p class=&quot;meta&quot;&gt;<b>Some Logo Content...</b>&lt;/p&gt;
+&lt;/div&gt;
+								</pre>
+								
+								<hr />
+
+<!----------------------------------------------------------------------------------------------------------->
+
+
+							<!-- Navigation -->
+							<h3 id="navigation">Navigation</h3>
+								<p>Below code shows the markup of <em>Navigation</em> bar.</p>
+								
+								<pre>
+&lt;!-- Page Navigation Menu --&gt;
+&lt;ul class=&quot;nav navbar-nav&quot;&gt;
+	&lt;li&gt;&lt;a href=&quot;<b>#</b>&quot;&gt;<b>LINK1</b>&lt;/a&gt;&lt;/li&gt;
+	&lt;li&gt;&lt;a href=&quot;<b>#</b>&quot;&gt;<b>LINK2</b>&lt;/a&gt;&lt;/li&gt;
+	&lt;li class=&quot;dropdown&quot;&gt;
+		&lt;a href=&quot;#&quot; class=&quot;dropdown-toggle&quot; data-toggle=&quot;dropdown&quot;&gt; <b>MAIN LINK</b> &lt;b class=&quot;caret&quot;&gt;&lt;/b&gt;&lt;/a&gt;
+		&lt;ul class=&quot;dropdown-menu&quot;&gt;
+			&lt;li&gt;&lt;a href=&quot;<b>#</b>&quot;&gt;<b>SUB_LINK1</b>&lt;/a&gt;&lt;/li&gt;
+			&lt;li&gt;&lt;a href=&quot;<b>#</b>&quot;&gt;<b>SUB_LINK2</b>&lt;/a&gt;&lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/li&gt;
+&lt;/ul&gt;
+								</pre>
+								
+								<strong>Navigation Dropdown</strong>
+								<p>Below code shows the markup of Dropdown menu for navigation bar.</p>
+							
+								<pre>
+&lt;li class=&quot;dropdown&quot;&gt;
+	&lt;a href=&quot;#&quot; class=&quot;dropdown-toggle&quot; data-toggle=&quot;dropdown&quot;&gt; <b>MAIN LINK</b> &lt;b class=&quot;caret&quot;&gt;&lt;/b&gt;&lt;/a&gt;
+	&lt;ul class=&quot;dropdown-menu&quot;&gt;
+		&lt;li&gt;&lt;a href=&quot;<b>#</b>&quot;&gt;<b>SUB_LINK1</b>&lt;/a&gt;&lt;/li&gt;
+		&lt;li&gt;&lt;a href=&quot;<b>#</b>&quot;&gt;<b>SUB_LINK2</b>&lt;/a&gt;&lt;/li&gt;
+	&lt;/ul&gt;
+&lt;/li&gt;
+								</pre>
+								
+								<hr />
+
+
+
+<!----------------------------------------------------------------------------------------------------------->
+
+
+							<!-- Footer -->
+							<h3 id="footer">Footer</h3>
+								<p>Below code shows the markup of <em>Footer</em> blocks.</p>
+								
+								<pre>
+&lt;!-- Footer starts --&gt;
+&lt;footer&gt;
+	&lt;div class=&quot;widget&quot;&gt;
+		&lt;h5&gt;<b>Footer Widget Heading</b>&lt;/h5&gt;
+		<b>&lt;!-- Footer Widget Content --&gt;</b>
+	&lt;/div&gt;
+&lt;/footer&gt;
+								</pre>
+								
+								<strong>Copyright</strong>
+								<p>Below code shows the markup of <em>Copyright</em> Section.<p>
+								
+								<pre>
+&lt;!-- Copyright info --&gt;
+&lt;p class=&quot;copy&quot;&gt;Copyright &amp;copy; <b>YEAR</b> | &lt;a href=&quot;<b>#</b>&quot;&gt;<b>Your Site</b>&lt;/a&gt; - &lt;a href=&quot;<b>#</b>&quot;&gt;<b>LINK</b>&lt;/a&gt; | &lt;a href=&quot;<b>#</b>&quot;&gt;<b>LINK</b>&lt;/a&gt; &lt;/p&gt;
+								</pre>
+								
+								<hr />
+								
+								
+
+<!----------------------------------------------------------------------------------------------------------->
+
+
+							<!-- Elements -->
+							
+							<h3 id="elements">Elements</h3>
+								<p>Here are the customization information for some complex elements.</p>
+								
+								<strong>About US Block</strong>
+								<p>Code for about us page members block.</p>
+								<img class="img-responsive" src="img/about.png" alt="" />
+								<pre>
+&lt;div class=&quot;ceo&quot;&gt;
+	 &lt;!-- Staff name with designation. Designation should be enclosed inside &lt;span&gt; tag. --&gt;
+	 &lt;h4 class=&quot;title&quot;&gt;<b>YOUR NAME</b> &lt;span class=&quot;color&quot;&gt;<b>Designation</b>&lt;/span&gt;&lt;/h4&gt;
+	 &lt;!-- Staff Photo --&gt;
+	 &lt;a href=&quot;#&quot;&gt;&lt;img src=&quot;<b>IMAGE_LINK</b>&quot; alt=&quot;&quot; /&gt;&lt;/a&gt;
+	 &lt;!-- Social media links --&gt;
+	 &lt;div class=&quot;padd social&quot;&gt;
+		<b>&lt;!-- Your Social links --&gt;</b>
+	 &lt;/div&gt;
+	 &lt;!-- Small para --&gt;
+	 &lt;p&gt;<b>Your Details...</b>&lt;/p&gt;
+&lt;/div&gt;
+								</pre>
+								
+								<hr />
+
+								<strong>Features Block</strong>
+								<p>Code for features page items.</p>
+								<img class="img-responsive" src="img/feature.png" alt="" />
+								<pre>
+&lt;div class=&quot;feat-inner&quot;&gt;
+  &lt;!-- Font awesome icon --&gt;
+  &lt;i class=&quot;fa fa-<b>XXXX</b>&quot;&gt;&lt;/i&gt;
+  &lt;!-- Title --&gt;
+  &lt;h4&gt;<b>Your Title</b>&lt;/h4&gt;
+  &lt;!-- Para --&gt;
+  &lt;p&gt;<b>Your Features Details...</b>&lt;/p&gt;
+  &lt;!-- Button --&gt;
+  &lt;div class=&quot;button&quot;&gt;
+	&lt;a href=&quot;#&quot;&gt;Check It Out&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+								</pre>
+								
+								<hr />
+
+								<strong>Filter</strong>
+								<p>Code for support page filter input box.</p>
+								<img class="img-responsive" src="img/filter.png" alt="" />
+								<pre>
+&lt;!-- Below line produce Filter input box. --&gt;
+&lt;div id=&quot;<b>form</b>&quot;&gt;&lt;/div&gt;
+
+&lt;!-- Lists --&gt;
+&lt;ul id=&quot;slist&quot; class=&quot;inner-slist&quot;&gt;
+	&lt;!-- List #1 --&gt;
+	&lt;li&gt;
+	   &lt;!-- Title --&gt;
+	   &lt;a href=&quot;#&quot;&gt;<b>LINK TEXT CONTENT</b>&lt;/a&gt;
+	   &lt;!-- Para --&gt;
+	   &lt;p&gt;<b>PARAGARAPH TEXT CONTENT TYPE HERE...</b>&lt;/p&gt;
+	&lt;/li&gt;
+	&lt;!-- Add More... --&gt;
+&lt;/ul&gt;  
+								</pre>
+								
+								<hr />
+
+								<strong>Portfolio</strong>
+								<p>Code for portfolio page items.</p>
+								<img class="img-responsive" src="img/portfolio.png" alt="" />
+								<pre>
+&lt;div class=&quot;element two one&quot;&gt;
+	&lt;a href=&quot;<b>IMAGE_LINK</b>&quot; class=&quot;prettyphoto&quot;&gt;
+		&lt;img src=&quot;<b>IMAGE_LINK</b>&quot; alt=&quot;&quot;/&gt;
+		&lt;div class=&quot;pcap&quot;&gt;
+			&lt;h4&gt;<b>YOUR HEADING</b>&lt;/h4&gt;
+			&lt;p&gt;<b>YOUR CONTENT HERE...</b>&lt;/p&gt;
+		&lt;/div&gt;                           
+    &lt;/a&gt;
+&lt;/div&gt;
+								</pre>
+								
+								<hr />
+
+								<strong>Pricing Style I</strong>
+								<p>Code for pricing1.html page items</p>
+								<img class="img-responsive" src="img/pricing.png" alt="" />
+								<pre>
+&lt;!-- Pricing table #1. Class name &quot;col-left&quot; --&gt;
+&lt;div class=&quot;col-left pricel center&quot;&gt;
+	 &lt;div class=&quot;phead-top&quot;&gt;
+		&lt;!-- Title --&gt;
+		&lt;h4&gt;<b>Your Title</b>&lt;/h4&gt;
+	 &lt;/div&gt;
+	 &lt;div class=&quot;phead-bottom&quot;&gt;
+		&lt;!-- Price. Use the syntax correctly. --&gt;
+		&lt;p&gt;&lt;span class=&quot;pst&quot;&gt;$&lt;/span&gt; <b>PRICE</b> &lt;span class=&quot;psb&quot;&gt;/m&lt;/span&gt;&lt;/p&gt;
+	 &lt;/div&gt;
+  &lt;div class=&quot;plist&quot;&gt;
+	 &lt;!-- List --&gt;
+	 <b>&lt;!-- Your Details --&gt;</b>
+  &lt;/div&gt;
+  &lt;div class=&quot;pbutton button&quot;&gt;  
+	 &lt;!-- button --&gt;
+	 &lt;a href=&quot;#&quot;&gt;&lt;i class=&quot;fa fa-shopping-cart&quot;&gt;&lt;/i&gt; Buy Now&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+								</pre>
+								
+								<hr />
+
+								<strong>Pricing Style II</strong>
+								<p>Code for pricing2.html page items</p>
+								<img class="img-responsive" src="img/pricing2.png" alt="" />
+								<pre>
+&lt;!-- Pricing table #1.  --&gt;
+&lt;div class=&quot;pricel center&quot;&gt;
+	 &lt;div class=&quot;phead-top&quot;&gt;
+		&lt;!-- Title --&gt;
+		&lt;h4&gt; <b>Your Title</b>&lt;/h4&gt;
+	 &lt;/div&gt;
+	 &lt;div class=&quot;phead-bottom&quot;&gt;
+		&lt;div class=&quot;phead-round&quot;&gt;
+		  &lt;p&gt;$<b>PRICE</b> &lt;span&gt;month&lt;/span&gt;&lt;/p&gt;
+		&lt;/div&gt;
+	 &lt;/div&gt;
+  &lt;div class=&quot;plist&quot;&gt;
+	 &lt;!-- List --&gt;
+	<b>&lt;!-- Your Pricing Details.. --&gt;</b>
+  &lt;/div&gt;
+  &lt;div class=&quot;pbutton button&quot;&gt;  
+	 &lt;!-- button --&gt;
+	 &lt;a href=&quot;#&quot;&gt;&lt;i class=&quot;fa fa-shopping-cart&quot;&gt;&lt;/i&gt; Buy Now&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+								</pre>
+								
+								<hr />
+								<strong>Testimonial</strong>
+								<p>Code for testimonial page style#2 items.</p>
+								<img class="img-responsive" src="img/testimonial.png" alt="" />
+								<pre>
+&lt;div class=&quot;testi-two&quot;&gt;
+   &lt;!-- Testimonial #1 --&gt;
+   &lt;div class=&quot;test&quot;&gt;
+	  <b>&lt;!-- Your Comments... --&gt;</b>
+   &lt;/div&gt;
+   &lt;div class=&quot;test-arrow&quot;&gt;&lt;/div&gt;
+   &lt;!-- Author name --&gt;
+   &lt;div class=&quot;tauth&quot;&gt;&lt;i class=&quot;fa fa-user&quot;&gt;&lt;/i&gt; <b>YOUR NAME</b>, &lt;span class=&quot;color&quot;&gt;<b>OTHER DETAILS</b>&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+								</pre>
+								
+								<hr />
+
+
+<!----------------------------------------------------------------------------------------------------------->
+
+
+							
+							<!-- XXXXXXXXXXXXXXXXXXXX -->
+							<!-- Remove the plugins which are not used in this theme -->
+							<!-- Plugins used -->
+							<h3 id="plugins">Plugins</h3>
+							
+								<p>This theme uses following plugins. To customize the plugins, you need to refer the official Plugin documentation found in below links.</p>
+								<ul>
+									<li><a href="http://getbootstrap.com">Bootstrap</a> - Whole theme is made using Bootstrap.</li>
+									
+									<li><a href="http://fortawesome.github.io/Font-Awesome/">Font Awesom Icon</a> - For Vector Icons.</li>
+									
+									<li><a href="http://www.no-margin-for-errors.com/projects/prettyphoto-jquery-lightbox-clone/">PrettyPhoto</a> - Gallery & Portfolio section Photos lightbox.</li>
+									
+									<li><a href="http://isotope.metafizzy.co/">Isotope</a> - Portfolio & Gallery section image filtering.</li>
+									
+									<li><a href="http://www.themepunch.com/codecanyon/revolution/liveguide/01.Sample-Boxed.html">Revolution slider</a> - Revolution slider - <a href="http://codecanyon.net/item/slider-revolution-responsive-jquery-plugin/2580848">Official page</a>.</li>
+									
+									<li><a href="http://www.woothemes.com/flexslider/">Flex Slider</a> - Popular Slider plugin.</li>
+									
+									<li><a href="http://github.com/alexdunphy/refineslide">RefineSlide </a> - Slider plugin. </li>
+									
+								</ul>
+							
+							
+<!----------------------------------------------------------------------------------------------------------->														
+							
+							
+							<!-- Changelog 
+							<h3 id="changelog">Changelog</h3>
+							
+								<strong>Version 1.0:</strong>
+								<ul>
+									<li>Initial Release.</li>
+								</ul>
+							-->
+							
+							
+						</div>
+						
+					</div>
+				</div>
+			</div>
+			<br />
+			<div class="footer text-center">
+				Copyright 2013 - <a href="http://responsivewebinc.com">Responsive Web Inc</a>
+			</div>
+		</div>
+		
+		
+		<!-- Javascript files -->
+		<!-- jQuery -->
+		<script src="js/jquery.js"></script>
+		<!-- Bootstrap JS -->
+		<script src="js/bootstrap.min.js"></script>
+		<!-- Respond JS for IE8 -->
+		<script src="js/respond.min.js"></script>
+		<!-- HTML5 Support for IE -->
+		<script src="js/html5shiv.js"></script>
+		<!-- Custom JS -->
+		<script src="js/custom.js"></script>
+	</body>	
+</html>

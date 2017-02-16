@@ -1,0 +1,115 @@
+/************************
+Designed by : http://responsivewebinc.com
+************************/
+
+/* Basic CSS starts */
+
+body{
+	padding:30px 0px 0px 0px;
+	color:#777;
+	line-height:23px;
+	-webkit-font-smoothing: antialiased;
+}
+
+h1,h2,h3,h4,h5,h6{
+	
+}
+
+a{
+
+}
+
+a:hover{
+
+}
+
+a:hover,a:active,a:focus {
+	outline: 0;
+}
+
+hr{
+
+}
+
+:focus {
+	outline:none;
+}
+
+::-moz-focus-inner {
+	border:0;
+}
+
+em{
+	font-family:"Comic Sans", monospace;
+	font-style:normal;
+	background:#eee;
+	padding-left:5px;
+	padding-right:5px;
+}
+
+pre{
+	margin:10px 0px;
+	padding-top:10px;
+	line-height:25px;
+	padding-bottom:0px;
+}
+
+.alert{
+	padding:5px 10px;
+}
+
+pre b{
+	background:#FFD697;
+	font-weight: normal;
+}
+
+img{
+	margin:10px 0px;
+}
+
+/* Basic CSS ends */
+
+h3{
+	font-size:18px;
+	margin-top:40px;
+	margin-bottom:10px;
+	padding-bottom:10px;
+	border-bottom:1px solid #eee;
+	color:#555;
+}
+
+.sidebar ul{
+	padding-left:0px;
+	margin-left:0px;
+	list-style-type:none;
+}
+
+.sidebar ul li{
+	margin-bottom:10px;
+}
+
+/* Footer */
+
+.footer{
+	margin-top:10px;
+	padding-top:30px;
+	padding-bottom:30px;
+	border-top:1px solid #eee;
+}
+
+/* Responsive CSS */
+
+/* Mobile phones */
+@media (max-width: 480px){
+
+}
+
+/* Tablets */
+@media (max-width: 767px){
+
+}
+
+/* Desktop */
+@media (max-width: 991px){
+
+}

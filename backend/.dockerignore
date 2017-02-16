@@ -1,0 +1,10 @@
+.gitignore
+.gitlab-ci.yml
+.git
+backend.sublime-project
+backend.sublime-workspace
+old
+tests
+README.md
+Dockerfile
+.dockerignore

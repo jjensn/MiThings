@@ -1,0 +1,6 @@
+1. Use the class "color" to add color to the text.
+2. Enclose the anchor tag with "button" class to create button (Eg: <div class="button"><a href="#">Hello</a></div>).
+3. Use class "bold" to creat bold text.
+4. Use class "sep" to create seperator (without margin).
+5. Use class "bor" to create seperator (with margin)
+6. Change theme color by replacing color stylesheet. This theme comes with 6 colors orange.css, red.css, blue.css, green.css, yellow, brown.css.
