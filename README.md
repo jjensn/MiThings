@@ -5,6 +5,9 @@ https://jjensn.github.io/MiThings/
 
 ### Latest news:
 
+#####**02/16/2017:**
+I am open sourcing everything as I have moved away from SmartThings in favor of [Home-Assistant](https://github.com/home-assistant/home-assistant). No support with any of it! Please don't ask. It is likely that you will be unable to replicate the same design I have in Azure, however you may use my code as a starting point for whatever you like.
+
 #####**11/16/2016:**
 Reached my 150$ hard cap for the month in the cloud. Services will resume next billing period (next week).
 
