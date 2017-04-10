@@ -46,8 +46,7 @@ def initialize() {
     }
 }
 
-def httpCall(uri, body, evt) {
-    def mac = evt.device.getPreferences()["mac"]
+def httpCall(uri, mac, body, evt) {
 	def group =  evt.device.getPreferences()["group"]
     def params = [
         uri:  uri,

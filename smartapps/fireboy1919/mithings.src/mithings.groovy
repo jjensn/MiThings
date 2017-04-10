@@ -14,8 +14,6 @@
  *
  */
  
-import groovy.json.JsonSlurper
- 
 definition(
     name: "MiThings",
     namespace: "fireboy1919",
@@ -119,7 +117,7 @@ def initialize() {
         
         myDevice.name = thisName.value
         myDevice.label = thisName.value
-        myDevice.setPreferences(["mac": "${settings.macAddress}", "group":i + 1])
+        myDevice.setPreferences(["group":i + 1])
     }
 }
 
@@ -135,7 +133,7 @@ def switchOnHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.macAddress} / ${evt.device.name}" }
     
     //def path = parent.buildPath("rgbw/power", "on", evt);
-    parent.httpCall(["status": "on" ], settings.macAddress, evt)
+    parent.httpCall(["status": "on" ], settings.ipAddress, evt)
     
     getChildDevices().each {
     	it.on(false)
@@ -145,7 +143,7 @@ def switchOnHandler(evt) {
 def switchOffHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch off! ${settings.macAddress} / ${evt.device.name}" }
     
-    parent.httpCall(["status": "off" ], settings.macAddress, evt);
+    parent.httpCall(["status": "off" ], settings.ipAddress, settings.macAddress, evt);
    
     getChildDevices().each {
     	it.off(false)
@@ -155,7 +153,7 @@ def switchOffHandler(evt) {
 def switchLevelHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch set level! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
     
-    parent.httpCall(["level": evt.value.toInteger ], settings.macAddress, evt);
+    parent.httpCall(["level": evt.value.toInteger ], settings.ipAddress, settings.macAddress, evt);
     getChildDevices().each {
     	it.setLevel(evt.value.toInteger(), false)
     }
@@ -164,7 +162,7 @@ def switchLevelHandler(evt) {
 def switchColorHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master color set! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
      
-    parent.httpCall(["hue": evt.value ], settings.macAddress, evt);
+    parent.httpCall(["hue": evt.value ], settings.ipAddress, settings.macAddress, evt);
     getChildDevices().each {
     		it.setColor(evt.value, false)
     }
