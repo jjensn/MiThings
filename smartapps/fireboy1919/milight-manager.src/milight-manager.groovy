@@ -48,16 +48,31 @@ def initialize() {
     }
 }
 
-def httpCall(body, uri, mac, evt) {
-	def group =  evt.device.getPreferences()["group"]
-    def path =  "$uri/gateways/$mac/rgbw/$group"
+private String convertIPtoHex(ipAddress) { 
+    String hex = ipAddress.tokenize( '.' ).collect {  String.format( '%02x', it.toInteger() ) }.join()
+    log.debug "IP address entered is $ipAddress and the converted hex code is $hex"
+    return hex
+}
 
-    log.debug("Sending to ${params['uri']}${path}.")
+def httpCall(body, host, mac, evt) {
+	def group =  evt.device.getPreferences()["group"]
+    def path =  "/gateways/$mac/rgbw/$group"
+    path = "google.com"
+    log.debug("Sending to ${path}.")
     try {
+        def hubaction = new physicalgraph.device.HubAction(
+            method: "PUT",
+            path: path,
+            body: JsonOutput.toJson(body),
+            headers: [ HOST: convertIPtoHex(host), "Content-Type": "application/json" ]
+        )
+        /*
         httpPut(path, JsonOutput.toJson(body)) {resp ->
             if(settings.isDebug) { log.debug "Successfully updated settings." }
             //parseResponse(resp, mac, evt)
         }
+        */
+        sendHubCommand(hubAction);
     } catch (e) {
         log.error "Error sending: $e"
     }

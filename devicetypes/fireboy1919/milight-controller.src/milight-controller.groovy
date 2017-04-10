@@ -28,7 +28,7 @@ metadata {
     
     preferences {       
        input "ip", "string", title: "IP Address",
-       		  description: "The IP address of this MiLight bridge", defaultValue: "The MAC address here",
+       		  description: "The IP address of this MiLight bridge", defaultValue: "The IP address here",
               required: true, displayDuringSetup: false 
 			  /*
         input "port", "string", title: "Port number",
