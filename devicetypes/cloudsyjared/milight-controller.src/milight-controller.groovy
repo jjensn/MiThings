@@ -27,8 +27,11 @@ metadata {
 	}
     
     preferences {       
-       input "mac", "string", title: "MAC Address",
-       		  description: "The MAC address of this MiLight bridge", defaultValue: "The MAC address here",
+       input "ip", "string", title: "IP Address",
+       		  description: "The IP address of this MiLight bridge", defaultValue: "The MAC address here",
+              required: true, displayDuringSetup: false 
+        input "port", "string", title: "Port number",
+       		  description: "The port number used by this MiLight bridge", defaultValue: "Theport number here",
               required: true, displayDuringSetup: false 
        
        input "group", "number", title: "Group Number",

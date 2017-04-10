@@ -42,10 +42,10 @@ def selectMiLight() {
 	dynamicPage(name: "selectMiLight", title: "MiLight Wifi Hub Setup", uninstall: true) {
 		section("") {
             input "miLightName", "text", title: "MiLight hub name", description: "ie: Living Room Master Switch", required: true, submitOnChange: false
-            input "macAddress", "text", title: "Hub MAC address", description: "Use format AA:BB:CC:DD:EE:FF", required: true, submitOnChange: false
-			input "zoneCount", "enum", title: "How many zones?", required: true, options: ["1", "2", "3", "4"], submitOnChange: true
+            input "macAddress", "text", title: "Hub Device ID", description: "Use format 0xFFFF", required: true, submitOnChange: false
+            input "ipAddress", "text", title: "Hub Base URL", description: "Base URL", required: true, submitOnChange: false
+            input "zoneCount", "enum", title: "How many zones?", required: true, options: ["1", "2", "3", "4"], submitOnChange: true
 		}
-		
 	}
 }
 
@@ -85,7 +85,7 @@ def initialize() {
 
     app.updateLabel("${settings.miLightName}")
     
-    def deviceId = "${settings.macAddress}/0"
+    def deviceId = "${settings.macAddress}/rgbw/0"
     def myDevice = getChildDevice(deviceId)
  	if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: "${settings.miLightName}", completedSetup: true])
 	myDevice = getChildDevice(deviceId)
@@ -103,7 +103,7 @@ def initialize() {
     
 	for (int i = 0 ; i < state.howMany; i++) {
         def thisName = settings.find {it.key == "dName$i"}
-    	deviceId = "${settings.macAddress}/${i+1}"
+    	deviceId = "${settings.macAddress}/rgbw/${i+1}"
         myDevice = getChildDevice(deviceId)
  		if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: thisName.value, completedSetup: true])
 		myDevice = getChildDevice(deviceId)
@@ -178,16 +178,16 @@ def masterSwitchColorHandler(evt) {
 def masterSwitchRefreshHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "Master switch command : refresh !" }
     
-    def path = parent.buildPath("rgbw", "status", evt);
 	parent.httpCall(path, settings.macAddress, evt);
 }
+
 def zoneSwitchHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "Zone switch changed state! ${evt.value}!" }
     
     def jsonObj = new JsonSlurper().parseText( evt.data )
     
     if(jsonObj.sendReq == true) {
-	    def deviceId = "${settings.macAddress}/0"
+	    def deviceId = "${settings.macAddress}/rgbw/0"
     	def myDevice = getChildDevice(deviceId)
     
         if(myDevice) {

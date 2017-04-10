@@ -26,9 +26,13 @@ metadata {
         command "unknown"
 	}
     
-    preferences {       
-       input "mac", "string", title: "MAC Address",
-       		  description: "The MAC address of this MiLight bridge", defaultValue: "The MAC address here",
+    preferences { 
+
+       input "mac", "string", title: "Hub Device ID",
+       		  description: "The Device ", defaultValue: "The MAC address here",
+              required: true, displayDuringSetup: false 
+        input "ipAddress", "string", title: "Hub Device URL",
+       		  description: "The port number used by this MiLight bridge", defaultValue: "Theport number here",
               required: true, displayDuringSetup: false 
        
        input "group", "number", title: "Group Number",

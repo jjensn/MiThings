@@ -45,50 +45,36 @@ def initialize() {
 		if(settings.isDebug) { log.debug "Installed Hubs: ${child.label}" }
     }
 }
-
+/*
 def buildPath(option, value, evt) {
 	def path = ""
-    
-	def group = evt.device.getPreferences()["group"]
-       
+	def deviceId = evt.device.getPreferences()["deviceId"]
 	if(group == 0 || group == null) {
-    	path = "$option/$value"
-    } else {
-    	path = "$option/$value/$group"
-    }
+    	path = ""
+        } else {
+    	    path = "/gateways/$deviceId"
+        }
     
-    if(settings.isDebug) { log.debug "MiLight device: ${evt.device.getPreferences()["mac"]}, built path: $path" }
+    if(settings.isDebug) { log.debug "MiLight device: ${evt.device.getPreferences()["deviceId"]}, built path: $path" }
     
     return path;
 }
+*/
 
-def buildColorPath(hex, evt) {
-	def path = ""    
-    def value = "rgbw/color/$hex"
-    def group = evt.device.getPreferences()["group"]
-    
-	if(group == 0 || group == null) {
-    	path = "$value"
-    } else {
-    	path = "$value/$group"
-    }
-    
-    if(settings.isDebug) { log.debug "MiLight device: ${mac}, color path: $path" }
-    
-    return path;
-}
-
-def httpCall(path, mac, evt) {
+def httpCall(mac, body, evt) {
+    def uri = evt.device.getPreferences()["ipAddress"]
+	def deviceId = evt.device.getPreferences()["deviceId"]
     def params = [
-        uri:  'http://dev-api.mithings.pw/v1/',
-        path: "$path",
+        uri:  uri,
+        path: "/gateways/$path",
+        body: body, 
         contentType: 'application/json',
         headers: [MAC:"$mac"]
     ]
     try {
-        httpGet(params) {resp ->
+        httpPutJson(params) {resp ->
             if(settings.isDebug) { log.debug "MiLight device: ${mac}, raw data from cloud: ${resp.data}" }
-            parseResponse(resp, mac, evt)
+            //parseResponse(resp, mac, evt)
         }
     } catch (e) {
         log.error "error: $e"

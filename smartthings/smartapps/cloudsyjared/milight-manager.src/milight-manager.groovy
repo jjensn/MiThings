@@ -48,14 +48,13 @@ def initialize() {
 
 def buildPath(option, value, evt) {
 	def path = ""
-    
 	def group = evt.device.getPreferences()["group"]
-       
+        def macAddress = evt.device.getPreferences()["mac"] 
 	if(group == 0 || group == null) {
-    	path = "$option/$value"
-    } else {
-    	path = "$option/$value/$group"
-    }
+    	path = ""
+        } else {
+    	    path = "$gateways/$macAddress/rgbw/$group"
+        }
     
     if(settings.isDebug) { log.debug "MiLight device: ${evt.device.getPreferences()["mac"]}, built path: $path" }
     
@@ -78,17 +77,19 @@ def buildColorPath(hex, evt) {
     return path;
 }
 
-def httpCall(path, mac, evt) {
+def httpCall(mac, body, evt) {
+    def uri = evt.device.getPreferences()["ipAddress"]
+	def deviceId = evt.device.getPreferences()["deviceId"]
     def params = [
-        uri:  'http://dev-api.mithings.pw/v1/',
-        path: "$path",
-        contentType: 'application/json',
-        headers: [MAC:"$mac"]
+        uri:  uri,
+        path: "/gateways/$deviceId",
+        body: body, 
+        contentType: 'application/json'
     ]
     try {
-        httpGet(params) {resp ->
+        httpPutJson(params) {resp ->
             if(settings.isDebug) { log.debug "MiLight device: ${mac}, raw data from cloud: ${resp.data}" }
-            parseResponse(resp, mac, evt)
+            //parseResponse(resp, mac, evt)
         }
     } catch (e) {
         log.error "error: $e"
@@ -97,7 +98,8 @@ def httpCall(path, mac, evt) {
 
 private parseResponse(resp, mac, evt) {
 
-	if(settings.isDebug) { log.debug "Received response: ${resp} ${evt.value}" }    
+    if(settings.isDebug) { log.debug "Received response: ${resp} ${evt.value}" }    
+    /*  If it succeeds, then use that alone.  Don't depend on response.
     if(resp.data.brightness != null) {
         if(evt.device.currentValue("level") == null) {
             if(settings.isDebug) { log.debug "MiLight device: ${mac}, setLevel() for first time" }
@@ -146,4 +148,5 @@ private parseResponse(resp, mac, evt) {
             state.notification.image = ""
         }
     }
+    */
 }
