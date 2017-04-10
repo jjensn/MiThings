@@ -54,7 +54,7 @@ def httpCall(body, uri, mac, evt) {
 
     log.debug("Sending to ${params['uri']}${path}.  Body: ${bodyString}.")
     try {
-        httpPutJson(path, body) {resp ->
+        httpPut(path, JsonOutput.toJson(body)) {resp ->
             if(settings.isDebug) { log.debug "Successfully updated settings." }
             //parseResponse(resp, mac, evt)
         }
