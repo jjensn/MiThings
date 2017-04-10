@@ -57,7 +57,7 @@ def httpCall(mac, body, evt) {
     ]
     try {
         httpPutJson(params) {resp ->
-            if(settings.isDebug) { log.debug "MiLight device: ${mac}, raw data from cloud: ${resp.data}" }
+            if(settings.isDebug) { log.debug "MiLight device: ${mac}, paramsfrom cloud: ${params}" }
             //parseResponse(resp, mac, evt)
         }
     } catch (e) {
