@@ -48,7 +48,7 @@ def initialize() {
 
 def httpCall(body, uri, mac, evt) {
 	def group =  evt.device.getPreferences()["group"]
-    def path =  "/gateways/$mac/rgbw/$group",
+    def path =  "/gateways/$mac/rgbw/$group"
     def params = [
         uri:  uri,
         path: path,
