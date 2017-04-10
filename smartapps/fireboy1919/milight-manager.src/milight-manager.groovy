@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 definition(
     name: "MiLight Manager",
     singleInstance: true,
@@ -52,7 +54,7 @@ def httpCall(body, uri, mac, evt) {
     def params = [
         uri:  uri,
         path: path,
-        body: body, 
+        body: JsonOutput.toJson(body), 
         contentType: 'application/json'
     ]
     log.debug("Sending to ${params['uri']}${path}.")
@@ -62,6 +64,6 @@ def httpCall(body, uri, mac, evt) {
             //parseResponse(resp, mac, evt)
         }
     } catch (e) {
-        log.error "error: $e"
+        log.error "Error sending: $e"
     }
 }
