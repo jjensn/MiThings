@@ -52,7 +52,7 @@ def httpCall(body, uri, mac, evt) {
 	def group =  evt.device.getPreferences()["group"]
     def path =  "$uri/gateways/$mac/rgbw/$group"
 
-    log.debug("Sending to ${params['uri']}${path}.  Body: ${bodyString}.")
+    log.debug("Sending to ${params['uri']}${path}.")
     try {
         httpPut(path, JsonOutput.toJson(body)) {resp ->
             if(settings.isDebug) { log.debug "Successfully updated settings." }
