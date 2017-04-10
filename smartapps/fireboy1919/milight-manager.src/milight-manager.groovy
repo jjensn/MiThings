@@ -58,7 +58,7 @@ def httpCall(body, uri, mac, evt) {
     log.debug("Sending to ${params['uri']}${path}.")
     try {
         httpPutJson(params) {resp ->
-            if(settings.isDebug) { log.debug "MiLight device: ${mac}" }
+            if(settings.isDebug) { log.debug "Successfully updated settings." }
             //parseResponse(resp, mac, evt)
         }
     } catch (e) {
