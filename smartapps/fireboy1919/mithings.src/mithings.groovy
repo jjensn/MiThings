@@ -112,7 +112,8 @@ def initialize() {
  		if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, null, [label: thisName.value, completedSetup: true])
 		myDevice = getChildDevice(deviceId)
         
-        subscribe(myDevice, "switch", switchHandler)
+        subscribe(myDevice, "switch.on", switchOnHandler)
+        subscribe(myDevice, "switch.off", switchOffHandler)
         subscribeToCommand(myDevice, "refresh", switchRefreshHandler)
         subscribe(myDevice, "level", switchLevelHandler)
         subscribe(myDevice, "color", switchColorHandler)
