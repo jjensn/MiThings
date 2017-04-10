@@ -55,7 +55,7 @@ def httpCall(body, uri, mac, evt) {
         body: body, 
         contentType: 'application/json'
     ]
-    log.debug "Sending to ${params.uri}${path}.";"
+    log.debug "Sending to ${params.uri}${path}."
     try {
         httpPutJson(params) {resp ->
             if(settings.isDebug) { log.debug "MiLight device: ${mac}, paramsfrom cloud: ${params}" }
