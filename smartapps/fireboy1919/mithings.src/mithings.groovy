@@ -136,7 +136,7 @@ def switchOnHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.macAddress} / ${evt.device.name}" }
     
     //def path = parent.buildPath("rgbw/power", "on", evt);
-    parent.httpCall(["status": "on" ], settings.ipAddress, evt)
+    parent.httpCall(["status": "on" ], settings.ipAddress, settings.macAddress, evt)
     
     getChildDevices().each {
     	it.on(false)
