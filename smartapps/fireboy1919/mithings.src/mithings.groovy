@@ -87,7 +87,7 @@ def initialize() {
 
     app.updateLabel("${settings.miLightName}")
     
-    def deviceId = "${settings.macAddress}/rgbw/0"
+    def deviceId = "${settings.macAddress}/0"
     def myDevice = getChildDevice(deviceId)
  	if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, null, [label: "${settings.miLightName}", completedSetup: true])
 	myDevice = getChildDevice(deviceId)
@@ -101,11 +101,13 @@ def initialize() {
     subscribe(myDevice, "poll", switchPollHandler)
     subscribe(myDevice, "level", switchLevelHandler)
     subscribe(myDevice, "color", switchColorHandler)
-    subscribeToCommand(myDevice, "refresh", switchRefreshHandler)
+
+    log.debug("Subscribed")
+    //subscribeToCommand(myDevice, "refresh", switchRefreshHandler)
     
 	for (int i = 0 ; i < state.howMany; i++) {
         def thisName = settings.find {it.key == "dName$i"}
-    	deviceId = "${settings.macAddress}/rgbw/${i+1}"
+    	deviceId = "${settings.macAddress}/${i+1}"
         myDevice = getChildDevice(deviceId)
  		if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, null, [label: thisName.value, completedSetup: true])
 		myDevice = getChildDevice(deviceId)
