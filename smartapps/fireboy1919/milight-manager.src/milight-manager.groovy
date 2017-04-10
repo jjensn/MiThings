@@ -1,8 +1,8 @@
 definition(
     name: "MiLight Manager",
     singleInstance: true,
-    namespace: "cloudsyjared",
-    author: "Jared Jensen",
+    namespace: "fireboy1919",
+    author: "Rusty Phillips",
     description: "Adds SmartThings support for MiLight / Easybulb / LimitlessLED bulbs",
     category: "My Apps",
     iconUrl: "http://cdn.device-icons.smartthings.com/Lighting/light20-icn.png",
@@ -25,7 +25,7 @@ def mainPage() {
             }
         }
         section("") {
-            app(name: "childHubs", appName: "MiThings", namespace: "cloudsyjared", title: "Add New Hub...", multiple: true)
+            app(name: "childHubs", appName: "MiThings", namespace: "fireboy1919", title: "Add New Hub...", multiple: true)
             input "isDebug", "bool", title: "Enable debug logging", defaultValue: false, required: false, displayDuringSetup: true
         }
     }
@@ -45,31 +45,15 @@ def initialize() {
 		if(settings.isDebug) { log.debug "Installed Hubs: ${child.label}" }
     }
 }
-/*
-def buildPath(option, value, evt) {
-	def path = ""
-	def deviceId = evt.device.getPreferences()["deviceId"]
-	if(group == 0 || group == null) {
-    	path = ""
-        } else {
-    	    path = "/gateways/$deviceId"
-        }
-    
-    if(settings.isDebug) { log.debug "MiLight device: ${evt.device.getPreferences()["deviceId"]}, built path: $path" }
-    
-    return path;
-}
-*/
 
 def httpCall(mac, body, evt) {
     def uri = evt.device.getPreferences()["ipAddress"]
 	def deviceId = evt.device.getPreferences()["deviceId"]
     def params = [
         uri:  uri,
-        path: "/gateways/$path",
+        path: "/gateways/$deviceId",
         body: body, 
-        contentType: 'application/json',
-        headers: [MAC:"$mac"]
+        contentType: 'application/json'
     ]
     try {
         httpPutJson(params) {resp ->
@@ -78,58 +62,5 @@ def httpCall(mac, body, evt) {
         }
     } catch (e) {
         log.error "error: $e"
-    }
-}
-
-private parseResponse(resp, mac, evt) {
-
-	if(settings.isDebug) { log.debug "Received response: ${resp} ${evt.value}" }    
-    if(resp.data.brightness != null) {
-        if(evt.device.currentValue("level") == null) {
-            if(settings.isDebug) { log.debug "MiLight device: ${mac}, setLevel() for first time" }
-			evt.device.setLevel(resp.data.brightness.toInteger())
-		} else {
-        	if(resp.data.brightness.toInteger() != evt.device.currentValue("level").toInteger()){
-                if(settings.isDebug) { log.debug "MiLight device: ${mac}, differences detected between brightness, updating. CLOUD: ${resp.data.brightness} / DEVICE: ${evt.device.currentValue("level")}" }
-                evt.device.setLevel(resp.data.brightness.toInteger())
-    		}
-        }
-    }
-    
-    if(resp.data.hex != null) {
-        if(resp.data.hex != evt.device.currentValue("color")){
-    		if(settings.isDebug) { log.debug "MiLight device: ${mac}, differences detected between color, updating. CLOUD: ${resp.data.hex} / DEVICE: ${evt.device.currentValue("color")}" }
-            evt.device.setColor(resp.data)
-    	}
-    }
-    
-    if(resp.data.power != null) {
-    	if(evt.device.currentValue("switch") != resp.data.power){
-    		if(settings.isDebug) { log.debug "MiLight device: ${mac}, differences detected between power, updating SmartThings. [ device: ${evt.device.currentValue("switch")}, cloud: ${resp.data.power} ]" }
-            if(resp.data.power == "on") { evt.device.on() } else if(resp.data.power == "off") { evt.device.off() }
-    	}
-    }
-        
-    if(resp.data.notification != null) {
-        // hasMessage should be set to 0 or 1
-        if(state.notification == null) { state.notification = [:] }
-        if(state.notification.hasMessage != resp.data.notification.hasMessage) {
-        	if(state.notification.hasMessage == 0 && resp.data.notification.hasMessage == 1) {
-            	// New message alert, send notify
-                sendPush("MiLight Manager - ${resp.data.notification.title}. Check SmartApp for details.")
-            }
-        }
-        state.notification.hasMessage = resp.data.notification.hasMessage
-        if(resp.data.notification.hasMessage == 1) {
-            state.notification.message = new String(resp.data.notification.message.decodeBase64())
-            state.notification.url = new String(resp.data.notification.url.decodeBase64())
-            state.notification.title = new String(resp.data.notification.title.decodeBase64())
-            state.notification.image = new String(resp.data.notification.image.decodeBase64())
-        } else {
-            state.notification.message = ""
-            state.notification.url = ""
-            state.notification.title = ""
-            state.notification.image = ""
-        }
     }
 }

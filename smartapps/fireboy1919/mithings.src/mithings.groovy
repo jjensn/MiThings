@@ -19,8 +19,8 @@ import groovy.json.JsonSlurper
 definition(
     name: "MiThings",
     namespace: "cloudsyjared",
-    parent: "cloudsyjared:MiLight Manager",
-    author: "Jared Jensen",
+    parent: "fireboy1919:MiLight Manager",
+    author: "Rusty Phillips",
     description: "Child application for MiLight Manager -- do not install directly",
     category: "My Apps",
     iconUrl: "http://cdn.device-icons.smartthings.com/Lighting/light20-icn.png",
@@ -81,11 +81,15 @@ def updated() {
 	initialize()
 }
 
+def isMaster() {
+    return settings.group == 0;
+}
+
 def initialize() {
 
     app.updateLabel("${settings.miLightName}")
     
-    def deviceId = "${settings.macAddress}/rgbw/0"
+    def deviceId = "${settings.macAddress}/0"
     def myDevice = getChildDevice(deviceId)
  	if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: "${settings.miLightName}", completedSetup: true])
 	myDevice = getChildDevice(deviceId)
@@ -94,25 +98,24 @@ def initialize() {
     myDevice.label = settings.miLightName
     myDevice.setPreferences(["mac": "${settings.macAddress}", "group":0])
     
-    subscribe(myDevice, "switch.on", masterSwitchOnHandler)
-    subscribe(myDevice, "switch.off", masterSwitchOffHandler)
-    subscribe(myDevice, "poll", masterSwitchPollHandler)
-    subscribe(myDevice, "level", masterSwitchLevelHandler)
-    subscribe(myDevice, "color", masterSwitchColorHandler)
-    subscribeToCommand(myDevice, "refresh", masterSwitchRefreshHandler)
+    subscribe(myDevice, "switch.on", switchOnHandler)
+    subscribe(myDevice, "switch.off", switchOffHandler)
+    subscribe(myDevice, "poll", switchPollHandler)
+    subscribe(myDevice, "level", switchLevelHandler)
+    subscribe(myDevice, "color", switchColorHandler)
+    subscribeToCommand(myDevice, "refresh", switchRefreshHandler)
     
 	for (int i = 0 ; i < state.howMany; i++) {
         def thisName = settings.find {it.key == "dName$i"}
-    	deviceId = "${settings.macAddress}/rgbw/${i+1}"
+    	deviceId = "${settings.macAddress}/${i+1}"
         myDevice = getChildDevice(deviceId)
  		if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: thisName.value, completedSetup: true])
 		myDevice = getChildDevice(deviceId)
         
-        subscribe(myDevice, "switch", zoneSwitchHandler)
-        subscribeToCommand(myDevice, "refresh", zoneSwitchRefreshHandler)
-        subscribe(myDevice, "level", zoneSwitchLevelHandler)
-        //subscribe(myDevice, "poll", zoneSwitchPollHandler))
-        subscribe(myDevice, "color", zoneSwitchColorHandler)
+        subscribe(myDevice, "switch", switchHandler)
+        subscribeToCommand(myDevice, "refresh", switchRefreshHandler)
+        subscribe(myDevice, "level", switchLevelHandler)
+        subscribe(myDevice, "color", switchColorHandler)
         
         myDevice.name = thisName.value
         myDevice.label = thisName.value
@@ -128,116 +131,49 @@ private removeChildDevices(delete) {
     }
 }
 
-def masterSwitchOnHandler(evt) {
+def switchOnHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.macAddress} / ${evt.device.name}" }
     
-    def path = parent.buildPath("rgbw/power", "on", evt);
-    parent.httpCall(path, settings.macAddress, evt);
+    //def path = parent.buildPath("rgbw/power", "on", evt);
+    parent.httpCall(["status": "on" ], settings.macAddress, evt)
     
     getChildDevices().each {
     	it.on(false)
     }
 }
 
-def masterSwitchOffHandler(evt) {
+def switchOffHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch off! ${settings.macAddress} / ${evt.device.name}" }
     
-    def path = parent.buildPath("rgbw/power", "off", evt);
-    parent.httpCall(path, settings.macAddress, evt);
+    parent.httpCall(["status": "off" ], settings.macAddress, evt);
    
     getChildDevices().each {
     	it.off(false)
     }
 }
 
-def masterSwitchLevelHandler(evt) {
+def switchLevelHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch set level! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
     
-    def path = parent.buildPath("rgbw/brightness", evt.value.toInteger(), evt);
-    parent.httpCall(path, settings.macAddress, evt);
-   
+    parent.httpCall(["level": evt.value.toInteger ], settings.macAddress, evt);
     getChildDevices().each {
     	it.setLevel(evt.value.toInteger(), false)
     }
 }
 
-def masterSwitchColorHandler(evt) {
+def switchColorHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master color set! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
      
-    def path = parent.buildPath("rgbw/color", evt.value, evt);
-
-    parent.httpCall(path, settings.macAddress, evt);
-   
+    parent.httpCall(["hue": evt.value ], settings.macAddress, evt);
     getChildDevices().each {
-    	if(it.getPreferences()["group"] != "0" && it.getPreferences()["group"] != null) {
     		it.setColor(evt.value, false)
-        }
     }
 }
 
-def masterSwitchRefreshHandler(evt) {
+def switchRefreshHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "Master switch command : refresh !" }
-    
-	parent.httpCall(path, settings.macAddress, evt);
-}
-
-def zoneSwitchHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "Zone switch changed state! ${evt.value}!" }
-    
-    def jsonObj = new JsonSlurper().parseText( evt.data )
-    
-    if(jsonObj.sendReq == true) {
-	    def deviceId = "${settings.macAddress}/rgbw/0"
-    	def myDevice = getChildDevice(deviceId)
-    
-        if(myDevice) {
-            myDevice.unknown()
-        }
-        
-        def path = parent.buildPath("rgbw/power", evt.value, evt);
-    	parent.httpCall(path, settings.macAddress, evt);
-    }
-}
-
-def zoneSwitchLevelHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "Zone switch changed level! ${evt.value}!" }
-    
-    def jsonObj = new JsonSlurper().parseText( evt.data )
-    
-    if(jsonObj.sendReq == true) {
-	    def deviceId = "${settings.macAddress}/0"
-    	def myDevice = getChildDevice(deviceId)
-    
-        if(myDevice) {
-            myDevice.unknown()
-        }
-        
-        def path = parent.buildPath("rgbw/brightness", evt.value.toInteger(), evt);
-    	parent.httpCall(path, settings.macAddress, evt);
-	}
-}
-
-def zoneSwitchColorHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "Zone switch color change! ${evt.value}!" }
-    
-    def jsonObj = new JsonSlurper().parseText( evt.data )
-    
-    if(jsonObj.sendReq == true) {
-	    def deviceId = "${settings.macAddress}/0"
-    	def myDevice = getChildDevice(deviceId)
-    
-        if(myDevice) {
-            myDevice.unknown()
-        }
-        
-		def path = parent.buildPath("rgbw/color", evt.value, evt);
-		parent.httpCall(path, settings.macAddress, evt);
-	}
-}
-
-def zoneSwitchRefreshHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "Zone switch command : refresh !" }
-    
+    /* Does nothing. 
     def path = parent.buildPath("rgbw", "status", evt);
 	parent.httpCall(path, settings.macAddress, evt);
+    */
 }
