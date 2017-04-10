@@ -46,12 +46,12 @@ def initialize() {
     }
 }
 
-def httpCall(mac, body, evt) {
-    def uri = evt.device.getPreferences()["ipAddress"]
-	def deviceId = evt.device.getPreferences()["deviceId"]
+def httpCall(uri, body, evt) {
+    def mac = evt.device.getPreferences()["mac"]
+	def group =  evt.device.getPreferences()["group"]
     def params = [
         uri:  uri,
-        path: "/gateways/$deviceId",
+        path: "/gateways/$mac/rgbw/$group",
         body: body, 
         contentType: 'application/json'
     ]
