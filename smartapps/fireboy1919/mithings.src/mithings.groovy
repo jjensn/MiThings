@@ -144,7 +144,7 @@ def switchOnHandler(evt) {
 }
 
 def switchOffHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "master switch off! ${settings.macAddress} / ${evt.device.name}" }
+	if(parent.settings.isDebug) { log.debug "switch off! ${settings.macAddress} / ${evt.device.name}" }
     
     parent.httpCall(["status": "off" ], settings.ipAddress, settings.macAddress, evt);
    
@@ -154,7 +154,7 @@ def switchOffHandler(evt) {
 }
 
 def switchLevelHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "master switch set level! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
+	if(parent.settings.isDebug) { log.debug "switch set level! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
     
     parent.httpCall(["level": evt.value.toInteger ], settings.ipAddress, settings.macAddress, evt);
     getChildDevices().each {
@@ -163,7 +163,7 @@ def switchLevelHandler(evt) {
 }
 
 def switchColorHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "master color set! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
+	if(parent.settings.isDebug) { log.debug "color set! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
      
     parent.httpCall(["hue": evt.value ], settings.ipAddress, settings.macAddress, evt);
     getChildDevices().each {
@@ -172,7 +172,7 @@ def switchColorHandler(evt) {
 }
 
 def switchRefreshHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "Master switch command : refresh !" }
+	if(parent.settings.isDebug) { log.debug "switch command : refresh !" }
     /* Does nothing. 
     def path = parent.buildPath("rgbw", "status", evt);
 	parent.httpCall(path, settings.macAddress, evt);
