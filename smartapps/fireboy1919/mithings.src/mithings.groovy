@@ -18,7 +18,7 @@ import groovy.json.JsonSlurper
  
 definition(
     name: "MiThings",
-    namespace: "cloudsyjared",
+    namespace: "fireboy1919",
     parent: "fireboy1919:MiLight Manager",
     author: "Rusty Phillips",
     description: "Child application for MiLight Manager -- do not install directly",
@@ -91,7 +91,7 @@ def initialize() {
     
     def deviceId = "${settings.macAddress}/0"
     def myDevice = getChildDevice(deviceId)
- 	if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: "${settings.miLightName}", completedSetup: true])
+ 	if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, null, [label: "${settings.miLightName}", completedSetup: true])
 	myDevice = getChildDevice(deviceId)
 
 	myDevice.name = settings.miLightName
@@ -109,7 +109,7 @@ def initialize() {
         def thisName = settings.find {it.key == "dName$i"}
     	deviceId = "${settings.macAddress}/${i+1}"
         myDevice = getChildDevice(deviceId)
- 		if(!myDevice) def childDevice = addChildDevice("cloudsyjared", "MiLight Controller", deviceId, null, [label: thisName.value, completedSetup: true])
+ 		if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, null, [label: thisName.value, completedSetup: true])
 		myDevice = getChildDevice(deviceId)
         
         subscribe(myDevice, "switch", switchHandler)
