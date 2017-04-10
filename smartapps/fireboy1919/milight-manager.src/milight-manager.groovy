@@ -50,17 +50,11 @@ def initialize() {
 
 def httpCall(body, uri, mac, evt) {
 	def group =  evt.device.getPreferences()["group"]
-    def path =  "/gateways/$mac/rgbw/$group"
-    def bodyString = JsonOutput.toJson(body)
-    def params = [
-        uri:  uri,
-        path: path,
-        body: body, 
-        contentType: 'application/json'
-    ]
+    def path =  "$uri/gateways/$mac/rgbw/$group"
+
     log.debug("Sending to ${params['uri']}${path}.  Body: ${bodyString}.")
     try {
-        httpPutJson(params) {resp ->
+        httpPutJson(path, body) {resp ->
             if(settings.isDebug) { log.debug "Successfully updated settings." }
             //parseResponse(resp, mac, evt)
         }
