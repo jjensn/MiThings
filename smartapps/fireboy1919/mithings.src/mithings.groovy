@@ -148,7 +148,7 @@ def switchOffHandler(evt) {
     
     evt.device.httpCall(["status": "off" ], settings.ipAddress, settings.macAddress)
     //parent.httpCall(["status": "off" ], settings.ipAddress, settings.macAddress, evt);
-   
+
     getChildDevices().each {
     	it.off(false)
     }
@@ -166,10 +166,10 @@ def switchLevelHandler(evt) {
 def switchColorHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "color set! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
      
-    evt.device.httpCall(["hue": evt.value ], settings.ipAddress, settings.macAddress );
     getChildDevices().each {
     		it.setColor(evt.value, false)
     }
+    return evt.device.httpCall(["hue": evt.value ], settings.ipAddress, settings.macAddress );
 }
 
 def switchRefreshHandler(evt) {

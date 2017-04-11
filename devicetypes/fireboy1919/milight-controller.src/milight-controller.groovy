@@ -117,7 +117,7 @@ def refresh() {
 }
 
 def httpCall(body, mac, ipAddress) {
-	def group =  evt.device.getPreferences()["group"]
+	def group =  getPreferences()["group"]
 
     def path =  "/gateways/$mac/rgbw/$group"
     log.debug("Sending to ${path}.")
