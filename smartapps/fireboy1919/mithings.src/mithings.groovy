@@ -94,7 +94,7 @@ def initialize() {
 
 	myDevice.name = settings.miLightName
     myDevice.label = settings.miLightName
-    myDevice.setPreferences(["mac": "${settings.macAddress}", "group":0])
+    myDevice.setPreferences(["mac": "${settings.macAddress}", "group":0, "ipAddress": settings.ipAddress ])
     
     subscribe(myDevice, "switch.on", switchOnHandler)
     subscribe(myDevice, "switch.off", switchOffHandler)
@@ -136,7 +136,7 @@ def switchOnHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.macAddress} / ${evt.device.name}" }
     
     //def path = parent.buildPath("rgbw/power", "on", evt);
-    parent.httpCall(["status": "on" ], settings.ipAddress, settings.macAddress, evt)
+    evt.device.httpCall(["status": "on" ], settings.ipAddress, settings.macAddress)
     
     getChildDevices().each {
     	it.on(false)
@@ -146,7 +146,8 @@ def switchOnHandler(evt) {
 def switchOffHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "switch off! ${settings.macAddress} / ${evt.device.name}" }
     
-    parent.httpCall(["status": "off" ], settings.ipAddress, settings.macAddress, evt);
+    evt.device.httpCall(["status": "off" ], settings.ipAddress, settings.macAddress)
+    //parent.httpCall(["status": "off" ], settings.ipAddress, settings.macAddress, evt);
    
     getChildDevices().each {
     	it.off(false)
@@ -156,7 +157,7 @@ def switchOffHandler(evt) {
 def switchLevelHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "switch set level! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
     
-    parent.httpCall(["level": evt.value.toInteger ], settings.ipAddress, settings.macAddress, evt);
+    evt.device.httpCall(["level": evt.value.toInteger ], settings.ipAddress, settings.macAddress);
     getChildDevices().each {
     	it.setLevel(evt.value.toInteger(), false)
     }
@@ -165,7 +166,7 @@ def switchLevelHandler(evt) {
 def switchColorHandler(evt) {
 	if(parent.settings.isDebug) { log.debug "color set! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
      
-    parent.httpCall(["hue": evt.value ], settings.ipAddress, settings.macAddress, evt);
+    evt.device.httpCall(["hue": evt.value ], settings.ipAddress, settings.macAddress );
     getChildDevices().each {
     		it.setColor(evt.value, false)
     }

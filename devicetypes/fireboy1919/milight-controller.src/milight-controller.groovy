@@ -22,22 +22,25 @@ metadata {
         capability "Polling"
         capability "Sensor"
         capability "Refresh" 
-               
+        command "httpCall"  , [ "string", "string", "string" ]  
         command "unknown"
 	}
     
     preferences {       
-       input "ip", "string", title: "IP Address",
+       input "ipAddress", "string", title: "IP Address",
        		  description: "The IP address of this MiLight bridge", defaultValue: "The IP address here",
               required: true, displayDuringSetup: false 
 			  /*
         input "port", "string", title: "Port number",
        		  description: "The port number used by this MiLight bridge", defaultValue: "Theport number here",
               required: true, displayDuringSetup: false 
-      */ 
+      */
+       input "mac", "string", title: "Mac Address",
+       		  description: "The MAC address of this MiLight bridge", defaultValue: "The Mac address here",
+              required: true, displayDuringSetup: false 
        input "group", "number", title: "Group Number",
        		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
-              required: false, displayDuringSetup: false       
+              required: true, displayDuringSetup: false       
 	}
 
 	tiles(scale: 2) {
@@ -111,4 +114,28 @@ def off(boolean sendHttp = true) {
 
 def refresh() {
 	return sendEvent(name: "refresh")
+}
+
+def httpCall(body, mac, ipAddress) {
+	def group =  evt.device.getPreferences()["group"]
+
+    def path =  "/gateways/$mac/rgbw/$group"
+    log.debug("Sending to ${path}.")
+    try {
+        def hubaction = new physicalgraph.device.HubAction(
+            method: "PUT",
+            path: path,
+            body: JsonOutput.toJson(body),
+            headers: [ HOST: convertIPtoHex(host), "Content-Type": "application/json" ]
+        )
+        /*
+        httpPut(path, JsonOutput.toJson(body)) {resp ->
+            if(settings.isDebug) { log.debug "Successfully updated settings." }
+            //parseResponse(resp, mac, evt)
+        }
+        */
+        return hubAction;
+    } catch (e) {
+        log.error "Error sending: $e"
+    }
 }
