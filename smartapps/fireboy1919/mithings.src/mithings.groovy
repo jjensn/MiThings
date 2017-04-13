@@ -83,13 +83,32 @@ def isMaster() {
     return settings.group == 0;
 }
 
+private String convertIPtoHex(ipAddress) { 
+    String hex = ipAddress.tokenize( '.' ).collect {  String.format( '%02x', it.toInteger() ) }.join()
+    log.debug "IP address entered is $ipAddress and the converted hex code is $hex"
+    return hex
+}
+
+private String convertToHex(port) { 
+    String hex = String.format( '%04x', port)
+    return hex
+}
+def getPrimaryDeviceId() {
+	return "${convertIPtoHex(settings.ipAddress)}:${convertToHex(80)}"
+}
+def getPrimaryDevice() {
+	log.debug(getChildDevices(true));
+    return getChildDevices(true).find { it.deviceNetworkId.contains(":") };
+}
+
 def initialize() {
 
     app.updateLabel("${settings.miLightName}")
     
-    def deviceId = "${settings.macAddress}/0"
-    def myDevice = getChildDevice(deviceId)
- 	if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, null, [label: "${settings.miLightName}", completedSetup: true])
+    def hub = location.getHubs().find() { it.type.toString() != "VIRTUAL" }
+	
+    def myDevice = getChildDevice("${settings.macAddress}/0")
+ 	if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, hub.id, [label: "${settings.miLightName}", completedSetup: true])
 	myDevice = getChildDevice(deviceId)
 
 	myDevice.name = settings.miLightName
@@ -109,8 +128,8 @@ def initialize() {
         def thisName = settings.find {it.key == "dName$i"}
     	deviceId = "${settings.macAddress}/${i+1}"
         myDevice = getChildDevice(deviceId)
- 		if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, null, [label: thisName.value, completedSetup: true])
-		myDevice = getChildDevice(deviceId)
+ 		if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, hub.id, [label: thisName.value, completedSetup: true])
+       	myDevice = getChildDevice(deviceId)
         
         subscribe(myDevice, "switch.on", switchOnHandler)
         subscribe(myDevice, "switch.off", switchOffHandler)
@@ -132,44 +151,68 @@ private removeChildDevices(delete) {
     }
 }
 
+def httpCall(body, evt) {
+}
+
 def switchOnHandler(evt) {
+    def body = ["status": "on"]
 	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.macAddress} / ${evt.device.name}" }
     
-    //def path = parent.buildPath("rgbw/power", "on", evt);
-    evt.device.httpCall(["status": "on" ], settings.ipAddress, settings.macAddress)
-    
-    getChildDevices().each {
-    	it.on(false)
+     httpCall(body, settings.ipAddress, settings.macAddress,
+        evt.device.getPreferences()["group"])
+
+    if(getPrimaryDevice().deviceNetworkId == evt.device.deviceNetworkId) {
+        getChildDevices().each {
+    	    it.on(false)
+        }
     }
 }
 
 def switchOffHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "switch off! ${settings.macAddress} / ${evt.device.name}" }
-    
-    evt.device.httpCall(["status": "off" ], settings.ipAddress, settings.macAddress)
-    //parent.httpCall(["status": "off" ], settings.ipAddress, settings.macAddress, evt);
+    def body = ["status": "off"]
 
-    getChildDevices().each {
-    	it.off(false)
+	if(parent.settings.isDebug) { log.debug "switch off! ${settings.macAddress} / ${evt.device.name}" }
+    /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.macAddress,
+        evt.device.getPreferences()["group"]) */
+
+    httpCall(body, settings.ipAddress, settings.macAddress,
+        evt.device.getPreferences()["group"])
+
+    if(getPrimaryDevice().deviceNetworkId == evt.device.deviceNetworkId) {
+        getChildDevices().each {
+    	    it.off(false)
+        }
     }
 }
 
 def switchLevelHandler(evt) {
+    def body = ["level": evt.value.toInteger ]
+
 	if(parent.settings.isDebug) { log.debug "switch set level! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
-    
-    evt.device.httpCall(["level": evt.value.toInteger ], settings.ipAddress, settings.macAddress);
-    getChildDevices().each {
-    	it.setLevel(evt.value.toInteger(), false)
+     
+    httpCall(body, settings.ipAddress, settings.macAddress,
+        evt.device.getPreferences()["group"])
+
+    if(getPrimaryDevice().deviceNetworkId == evt.device.deviceNetworkId) {
+        getChildDevices().each {
+    	    it.setLevel(evt.value.toInteger(), false)
+        }
     }
 }
 
 def switchColorHandler(evt) {
+    def body = ["hue": evt.value ]
+
 	if(parent.settings.isDebug) { log.debug "color set! ${settings.macAddress} / ${evt.device.name} / ${evt.value}" }
-     
+         
+    httpCall(body, settings.ipAddress, settings.macAddress,
+        evt.device.getPreferences()["group"])
+
+    if(getPrimaryDevice().deviceNetworkId == evt.device.deviceNetworkId) {
     getChildDevices().each {
     		it.setColor(evt.value, false)
+        }
     }
-    return evt.device.httpCall(["hue": evt.value ], settings.ipAddress, settings.macAddress );
 }
 
 def switchRefreshHandler(evt) {
@@ -178,4 +221,33 @@ def switchRefreshHandler(evt) {
     def path = parent.buildPath("rgbw", "status", evt);
 	parent.httpCall(path, settings.macAddress, evt);
     */
+}
+
+def httpCall(body, ipAddress, mac, group) {
+
+    def path =  "/gateways/$mac/rgbw/$group"
+    def bodyString = groovy.json.JsonOutput.toJson(body)
+    def ipAddressHex = convertIPtoHex(ipAddress)
+    def port = convertToHex(80);
+
+    def deviceNetworkId = "$ipAddressHex:$port"
+    try {
+        def hubaction = new physicalgraph.device.HubAction([
+            method: "POST",
+            path: path,
+            body: bodyString,
+			headers: [ HOST: "$ipAddress:80", "Content-Type": "application/x-www-form-urlencoded" ]]
+        )
+        /*
+        httpPut(path, JsonOutput.toJson(body)) {resp ->
+            if(settings.isDebug) { log.debug "Successfully updated settings." }
+            //parseResponse(resp, mac, evt)
+        }
+        */
+        log.debug("Sending $bodyString to ${path}.")
+        sendHubCommand(hubaction);
+        return hubAction;
+    } catch (e) {
+        log.error "Error sending: $e"
+    }
 }

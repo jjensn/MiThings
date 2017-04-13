@@ -47,9 +47,3 @@ def initialize() {
 		if(settings.isDebug) { log.debug "Installed Hubs: ${child.label}" }
     }
 }
-
-private String convertIPtoHex(ipAddress) { 
-    String hex = ipAddress.tokenize( '.' ).collect {  String.format( '%02x', it.toInteger() ) }.join()
-    log.debug "IP address entered is $ipAddress and the converted hex code is $hex"
-    return hex
-}

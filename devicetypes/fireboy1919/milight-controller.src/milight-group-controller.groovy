@@ -14,7 +14,7 @@
  *
  */
 metadata {
-	definition (name: "MiLight Controller", namespace: "fireboy1919", author: "Rusty Phillips", singleInstance: false) {
+	definition (name: "MiLight Group Controller", namespace: "fireboy1919", author: "Rusty Phillips", singleInstance: false) {
 		capability "Switch Level"
 		capability "Actuator"
 		capability "Switch"
@@ -22,7 +22,7 @@ metadata {
         capability "Polling"
         capability "Sensor"
         capability "Refresh" 
-        command "httpCall"  , [ "string", "string", "string" ]  
+        command "httpCall" 
         command "unknown"
 	}
     
@@ -115,4 +115,44 @@ def off(boolean sendHttp = true) {
 
 def refresh() {
 	return sendEvent(name: "refresh")
+}
+
+
+private String convertIPtoHex(ipAddress) { 
+    String hex = ipAddress.tokenize( '.' ).collect {  String.format( '%02x', it.toInteger() ) }.join()
+    log.debug "IP address entered is $ipAddress and the converted hex code is $hex"
+    return hex
+}
+
+private String convertToHex(port) { 
+    String hex = String.format( '%02x', port.toInteger())
+    return hex
+}
+
+def httpCall(body, ipAddress, mac) {
+
+    def path =  "/gateways/$mac/rgbw/$group"
+    def bodyString = groovy.json.JsonOutput.toJson(body)
+    def ipAddressHex = convertIPtoHex(ipAddress)
+    def port = convertToHex("80");
+    log.debug("Sending $bodyString to ${path}.")
+    //device.deviceNetworkId = "$ipAddressHex:$port"
+    try {
+        def hubaction = new physicalgraph.device.HubAction(
+            method: "PUT",
+            path: path,
+            body: body,
+            headers: [ HOST: device.deviceNetworkId, "Content-Type": "application/json" ]
+        )
+        /*
+        httpPut(path, JsonOutput.toJson(body)) {resp ->
+            if(settings.isDebug) { log.debug "Successfully updated settings." }
+            //parseResponse(resp, mac, evt)
+        }
+        */
+        sendHubCommand(hubaction);
+        //return hubAction;
+    } catch (e) {
+        log.error "Error sending: $e"
+    }
 }
