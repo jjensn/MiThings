@@ -22,7 +22,7 @@ metadata {
         capability "Polling"
         capability "Sensor"
         capability "Refresh" 
-        command "httpCall"  , [ "string", "string", "string" ]  
+        command "httpCall" 
         command "unknown"
 	}
     
@@ -115,4 +115,16 @@ def off(boolean sendHttp = true) {
 
 def refresh() {
 	return sendEvent(name: "refresh")
+}
+
+
+private String convertIPtoHex(ipAddress) { 
+    String hex = ipAddress.tokenize( '.' ).collect {  String.format( '%02x', it.toInteger() ) }.join()
+    log.debug "IP address entered is $ipAddress and the converted hex code is $hex"
+    return hex
+}
+
+private String convertToHex(port) { 
+    String hex = String.format( '%04x', port.toInteger())
+    return hex
 }
