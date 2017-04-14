@@ -16,7 +16,7 @@ preferences {
 }
 
 def mainPage() {
-	dynamicPage(name: "mainPage", title: "Manage multiple MiLight hubs", install: true, uninstall: true, submitOnChange: true) {
+	dynamicPage(name: "mainPage", title: "Manage MiLight Hubs", install: true, uninstall: true, submitOnChange: true) {
     	if(state.notification && state.notification.hasMessage) {
             section("") {
                 href(name: "hrefWithImage", title: "${state.notification.title}",
@@ -27,7 +27,7 @@ def mainPage() {
             }
         }
         section("") {
-            app(name: "childHubs", appName: "MiThings", namespace: "fireboy1919", title: "Add New Hub...", multiple: true)
+            app(name: "childBulbs", appName: "MilightLight", namespace: "fireboy1919", title: "Add New Light...", multiple: true)
             input "isDebug", "bool", title: "Enable debug logging", defaultValue: false, required: false, displayDuringSetup: true
         }
     }

@@ -21,7 +21,8 @@ metadata {
         capability "Color Control"
         capability "Polling"
         capability "Sensor"
-        capability "Refresh" 
+        capability "Pair" 
+        capability "Unpair" 
         command "httpCall" 
         command "unknown"
 	}
@@ -35,8 +36,8 @@ metadata {
        		  description: "The port number used by this MiLight bridge", defaultValue: "Theport number here",
               required: true, displayDuringSetup: false 
       */
-       input "mac", "string", title: "Mac Address",
-       		  description: "The MAC address of this MiLight bridge", defaultValue: "The Mac address here",
+       input "code", "string", title: "Address",
+       		  description: "ID Code for Light Group", defaultValue: "ID Code",
               required: true, displayDuringSetup: false 
        input "group", "number", title: "Group Number",
        		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
@@ -57,11 +58,14 @@ metadata {
 				attributeState "color", action:"setColor"
 			}
 		}
-        
-        standardTile("refresh", "device.refresh", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
+        /*
+        standardTile("pair", "device.pair", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label:"", action:"pair.pair", icon:"st.secondary.refresh"
         }
-       
+        standardTile("refresh", "device.unpair", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label:"", action:"pair.unpair", icon:"st.secondary.refresh"
+        }
+        */
 		main(["switch"])
 		details(["switch","levelSliderControl", "rgbSelector", "refresh"])
 	} 
@@ -127,4 +131,36 @@ private String convertIPtoHex(ipAddress) {
 private String convertToHex(port) { 
     String hex = String.format( '%04x', port.toInteger())
     return hex
+}
+
+def httpCall(body) {
+    def mac = getPreferences()['code']
+    def ipAddress = getPreferences()['ipAddress']
+    def group = getPreferences()['group']
+
+    def path =  "/gateways/$mac/rgbw/$group"
+    def bodyString = groovy.json.JsonOutput.toJson(body)
+    def ipAddressHex = convertIPtoHex(ipAddress)
+    def port = convertToHex(80);
+
+    def deviceNetworkId = "$ipAddressHex:$port"
+    try {
+        def hubaction = new physicalgraph.device.HubAction([
+            method: "POST",
+            path: path,
+            body: bodyString,
+			headers: [ HOST: "$ipAddress:80", "Content-Type": "application/x-www-form-urlencoded" ]]
+        )
+        /*
+        httpPut(path, JsonOutput.toJson(body)) {resp ->
+            if(settings.isDebug) { log.debug "Successfully updated settings." }
+            //parseResponse(resp, mac, evt)
+        }
+        */
+        log.debug("Sending $bodyString to ${path}.")
+        sendHubCommand(hubaction);
+        return hubAction;
+    } catch (e) {
+        log.error "Error sending: $e"
+    }
 }
