@@ -1,7 +1,7 @@
 /**
  *  MiLight / EasyBulb / LimitlessLED Light Controller
  *
- *  Copyright 2015 Jared Jensen / jared /at/ cloudsy /dot/ com
+ *  Copyright 2017  Rusty Phillips rusty dot phillips at gmail dot com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -26,17 +26,10 @@ metadata {
         command "unknown"
         command "pair"
         command "unpair"
+        command "whiten"
 	}
     
     preferences {       
-       input "ipAddress", "string", title: "IP Address",
-       		  description: "The IP address of this MiLight bridge", defaultValue: "The IP address here",
-              required: true, displayDuringSetup: false 
-			  /*
-        input "port", "string", title: "Port number",
-       		  description: "The port number used by this MiLight bridge", defaultValue: "Theport number here",
-              required: true, displayDuringSetup: false 
-      */
        input "code", "number", title: "Address",
        		  description: "ID Code for Light Group", defaultValue: "1",
               required: true, displayDuringSetup: false 
@@ -62,15 +55,21 @@ metadata {
 				attributeState "color", action:"setColor"
 			}
 		}
-        standardTile("pair", "device.momentary", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"pair", icon:"st.secondary.refresh"
+        
+        standardTile("pair", "device.switch", width: 2, height: 2, canChangeIcon: true) {
+           state "default", label:"Pair", defaultState: true, action: "pair", icon: "st.switches.switch.on"
         }
-        standardTile("unpair", "device.momentary", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"unpair", icon:"st.secondary.refresh"
+        
+        standardTile("unpair", "device.switch", width: 2, height: 2, canChangeIcon: true) {
+           state "default", label:"Unpair", defaultState: true, action: "unpair", icon: "st.switches.switch.off"
+        }
+
+        standardTile("white", "device.switch", width: 2, height: 2, canChangeIcon: true) {
+           state "default", label:"White", defaultState: true, action: "whiten", icon: "st.switches.switch.off"
         }
 
 		main(["switch"])
-		details(["switch","levelSliderControl", "rgbSelector", "refresh", "pair", "unpair"])
+		details(["switch","levelSliderControl", "rgbSelector", "refresh", "pair", "unpair", "white"])
 	} 
 }
 
@@ -98,22 +97,24 @@ def setLevel(percentage, boolean sendHttp = true) {
 }
 
 def setColor(value, boolean sendHttp = true) { 
-  	if(value in String) {
-        def j = value
-        sendEvent(name: 'color', value: j, data: [sendReq: sendHttp])
-    } else {
-    	def h = value.hex
+    	def h = value.hue
         sendEvent(name: 'color', value: h, data: [sendReq: sendHttp])
-    }
 	return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
 }
 
 def pair() {
-    sendEvent(name: "pair")
+// According to docs, value is required.  It won't sent it unless it's different every time.
+    sendEvent(name: "pair", value: java.util.UUID.randomUUID().toString())
 }
 
 def unpair() {
-    sendEvent(name: "unpair")
+// According to docs, value is required.  It won't sent it unless it's different every time.
+    sendEvent(name: "unpair", value: java.util.UUID.randomUUID().toString())    
+    log.debug("Sent unpair")
+}
+
+def whiten() {
+   sendEvent(name: "whiten", value: java.util.UUID.randomUUID().toString())    
 }
 
 def unknown() {

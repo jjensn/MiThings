@@ -1,7 +1,7 @@
 /**
- *  MiLight Installer
+ *  MiLight / EasyBulb / LimitlessLED Light Controller
  *
- *  Copyright 2016 Jared Jensen / jared at cloudsy com
+ *  Copyright 2017  Rusty Phillips rusty dot phillips at gmail dot com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -13,7 +13,6 @@
  *  for the specific language governing permissions and limitations under the License.
  *
  */
- 
 definition(
     name: "MiThings",
     namespace: "fireboy1919",

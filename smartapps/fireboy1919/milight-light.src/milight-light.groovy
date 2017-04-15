@@ -1,7 +1,7 @@
 /**
- *  MiLight Installer
+ *  MiLight / EasyBulb / LimitlessLED Light Controller
  *
- *  Copyright 2016 Jared Jensen / jared at cloudsy com
+ *  Copyright 2017  Rusty Phillips rusty dot phillips at gmail dot com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -31,12 +31,12 @@ preferences {
 }
 
 def nameMiLights() {
-	  
+	def lightCount = parent.parent.state.lightCount
 	dynamicPage(name: "nameMiLights", title: "MiLight Wifi Hub Setup", uninstall: true, install: true) {
         section("Light") {
             input "miLightName", "text", title: "Light name", description: "i.e. Living Room", required: true, submitOnChange: false
-            input "code", "number", required: true, description: "Code that is stored in the light to represent the device" 
-            input "lightType", "enume", title: "Bulb Type", required: true, options: ['rgbw', 'cct', 'rgb_cct'], default: 'rgbw'
+            input "code", "number", title: "Code", required: true, description: "Optional: will be autoassigned"
+            input "lightType", "enum", title: "Bulb Type", required: true, options: ['rgbw', 'cct', 'rgb_cct'], defaultValue: 'rgbw'
         }
 	}
 }
@@ -61,7 +61,7 @@ private String convertIPtoHex(ipAddress) {
 }
 
 private String convertToHex(port) { 
-    String hex = String.format( '%04x', port)
+    String hex = String.format( '0x%04x', port)
     return hex
 }
 
@@ -78,7 +78,10 @@ def initialize() {
 
 	myDevice.name = settings.miLightName
     myDevice.label = settings.miLightName
-    myDevice.setPreferences(["code": "${settings.code}", "group":1, "lightType":settings.lightType ])
+    if(settings.code == null) {
+    	settings.code = parent.parent.incLights();
+    }
+    myDevice.setPreferences(["code": settings.code, "group":1, "lightType": settings.lightType ])
     
     subscribe(myDevice, "switch.on", switchOnHandler)
     subscribe(myDevice, "switch.off", switchOffHandler)
@@ -87,6 +90,8 @@ def initialize() {
     subscribe(myDevice, "color", switchColorHandler)
     subscribe(myDevice, "pair", pairHandler)
     subscribe(myDevice, "unpair", unpairHandler)
+    subscribe(myDevice, "whiten", whitenHandler)
+    
     log.debug("Subscribed")
     //subscribeToCommand(myDevice, "refresh", switchRefreshHandler)
     
@@ -101,9 +106,10 @@ private removeChildDevices(delete) {
 }
 
 def pairHandler(evt) {
-    def body = ["pair": "on"]
+	log.debug("Pairing")
+    def body = ["command": "pair"]
 
-	if(parent.settings.isDebug) { log.debug "paired! ${settings.code} / ${evt.device.name}" }
+	//if(parent.parent.settings.isDebug) { log.debug "paired! ${settings.code} / ${evt.device.name}" }
     /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.code,
         evt.device.getPreferences()["group"]) */
 
@@ -111,21 +117,21 @@ def pairHandler(evt) {
 
 }
 def unpairHandler(evt) {
-    def body = ["unpair": "on"]
+    def body = ["command":"unpair"]
 
-	if(parent.settings.isDebug) { log.debug "unpaired! ${settings.code} / ${evt.device.name}" }
-    /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.code,
-        evt.device.getPreferences()["group"]) */
-
+	//if(parent.parent.settings.isDebug) { log.debug "unpaired! ${settings.code} / ${evt.device.name}" }
     httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 
 }
 
-
+def whitenHandler(evt) {
+	def body = ["command": "set_white"]
+     httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
+}
 
 def switchOnHandler(evt) {
     def body = ["status": "on"]
-	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.code} / ${evt.device.name}" }
+	//if(parent.parent.settings.isDebug) { log.debug "master switch on! ${settings.code} / ${evt.device.name}" }
     
      httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 }
@@ -133,7 +139,7 @@ def switchOnHandler(evt) {
 def switchOffHandler(evt) {
     def body = ["status": "off"]
 
-	if(parent.settings.isDebug) { log.debug "switch off! ${settings.code} / ${evt.device.name}" }
+	if(parent.parent.settings.isDebug) { log.debug "switch off! ${settings.code} / ${evt.device.name}" }
     /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.code,
         evt.device.getPreferences()["group"]) */
 
@@ -142,17 +148,20 @@ def switchOffHandler(evt) {
 }
 
 def switchLevelHandler(evt) {
-    def body = ["level": evt.value.toInteger ]
+    def body = ["level": evt.value ]
 
-	if(parent.settings.isDebug) { log.debug "switch set level! ${settings.code} / ${evt.device.name} / ${evt.value}" }
+	if(parent.parent.settings.isDebug) { log.debug "switch set level! ${settings.code} / ${evt.device.name} / ${evt.value}" }
      
     httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 }
 
 def switchColorHandler(evt) {
-    def body = ["hue": evt.value ]
+	// Adapted from HA Bridge.
+    log.debug("Hue: " + evt.value)
+    def val = (int)((256 + 26 - Math.floor((Float.parseFloat(evt.value) / 100)* 255)) % 256);
+    def body = ["hue": val.toString() ]
 
-	if(parent.settings.isDebug) { log.debug "color set! ${settings.code} / ${evt.device.name} / ${evt.value}" }
+	if(parent.parent.settings.isDebug) { log.debug "color set! ${settings.code} / ${evt.device.name} / ${evt.value}" }
          
     httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 
@@ -164,8 +173,8 @@ def httpCall(body, ipAddress, code, device) {
     def codeHex = convertToHex(code);
     def path =  "/gateways/$codeHex/$lightType/$group"
     def bodyString = groovy.json.JsonOutput.toJson(body)
+    log.debug("Sending $bodyString to $ipAddress${path}.")
 
-    def deviceNetworkId = "$ipAddressHex:$port"
     try {
         def hubaction = new physicalgraph.device.HubAction([
             method: "POST",
@@ -179,7 +188,7 @@ def httpCall(body, ipAddress, code, device) {
             //parseResponse(resp, mac, evt)
         }
         */
-        log.debug("Sending $bodyString to ${path}.")
+
         sendHubCommand(hubaction);
         return hubAction;
     } catch (e) {
