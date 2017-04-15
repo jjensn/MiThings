@@ -37,11 +37,14 @@ metadata {
        		  description: "The port number used by this MiLight bridge", defaultValue: "Theport number here",
               required: true, displayDuringSetup: false 
       */
-       input "code", "string", title: "Address",
-       		  description: "ID Code for Light Group", defaultValue: "ID Code",
+       input "code", "number", title: "Address",
+       		  description: "ID Code for Light Group", defaultValue: "1",
               required: true, displayDuringSetup: false 
        input "group", "number", title: "Group Number",
-       		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
+       		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "1",
+              required: true, displayDuringSetup: false       
+       input "lightType", "string", title: "Light Type",
+       		  description: "Type of bulb used", defaultValue: "rgbw",
               required: true, displayDuringSetup: false       
 	}
 

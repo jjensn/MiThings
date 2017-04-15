@@ -36,6 +36,7 @@ def nameMiLights() {
         section("Light") {
             input "miLightName", "text", title: "Light name", description: "i.e. Living Room", required: true, submitOnChange: false
             input "code", "number", required: true, description: "Code that is stored in the light to represent the device" 
+            input "lightType", "enume", title: "Bulb Type", required: true, options: ['rgbw', 'cct', 'rgb_cct'], default: 'rgbw'
         }
 	}
 }
@@ -77,7 +78,7 @@ def initialize() {
 
 	myDevice.name = settings.miLightName
     myDevice.label = settings.miLightName
-    myDevice.setPreferences(["code": "${settings.code}", "group":1 ])
+    myDevice.setPreferences(["code": "${settings.code}", "group":1, "lightType":settings.lightType ])
     
     subscribe(myDevice, "switch.on", switchOnHandler)
     subscribe(myDevice, "switch.off", switchOffHandler)
@@ -106,7 +107,7 @@ def pairHandler(evt) {
     /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.code,
         evt.device.getPreferences()["group"]) */
 
-    httpCall(body, parent.settings.ipAddress, settings.code, 1)
+    httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 
 }
 def unpairHandler(evt) {
@@ -116,7 +117,7 @@ def unpairHandler(evt) {
     /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.code,
         evt.device.getPreferences()["group"]) */
 
-    httpCall(body, parent.settings.ipAddress, settings.code, 1)
+    httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 
 }
 
@@ -126,8 +127,7 @@ def switchOnHandler(evt) {
     def body = ["status": "on"]
 	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.code} / ${evt.device.name}" }
     
-     httpCall(body, parent.settings.ipAddress, settings.code,
-        evt.device.getPreferences()["group"])
+     httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 }
 
 def switchOffHandler(evt) {
@@ -137,7 +137,7 @@ def switchOffHandler(evt) {
     /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.code,
         evt.device.getPreferences()["group"]) */
 
-    httpCall(body, parent.settings.ipAddress, settings.code, 1)
+    httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 
 }
 
@@ -146,7 +146,7 @@ def switchLevelHandler(evt) {
 
 	if(parent.settings.isDebug) { log.debug "switch set level! ${settings.code} / ${evt.device.name} / ${evt.value}" }
      
-    httpCall(body, parent.settings.ipAddress, settings.code, 1)
+    httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 }
 
 def switchColorHandler(evt) {
@@ -154,16 +154,21 @@ def switchColorHandler(evt) {
 
 	if(parent.settings.isDebug) { log.debug "color set! ${settings.code} / ${evt.device.name} / ${evt.value}" }
          
-    httpCall(body, parent.settings.ipAddress, settings.code, 1)
+    httpCall(body, parent.settings.ipAddress, settings.code, evt.device)
 
 }
 
-def httpCall(body, ipAddress, code, group) {
+private String convertToHex(port) { 
+    String hex = String.format( '0x%04x', port.toInteger())
+    return hex
+}
 
-    def path =  "/gateways/$code/rgbw/$group"
+def httpCall(body, ipAddress, code, device) {
+    def bulbType = device.getPreferences()['lightType']
+    def group = device.getPreferences()['group']
+    def codeHex = convertToHex(code);
+    def path =  "/gateways/$codeHex/$lightType/$group"
     def bodyString = groovy.json.JsonOutput.toJson(body)
-    def ipAddressHex = convertIPtoHex(ipAddress)
-    def port = convertToHex(80);
 
     def deviceNetworkId = "$ipAddressHex:$port"
     try {
