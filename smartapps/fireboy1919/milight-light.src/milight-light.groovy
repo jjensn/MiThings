@@ -69,21 +69,23 @@ def initialize() {
     app.updateLabel("${settings.miLightName}")
     
     def hub = location.getHubs().find() { it.type.toString() != "VIRTUAL" }
-	
-    def myDevice = getChildDevice("${settings.code}/0")
- 	if(!myDevice) def childDevice = addChildDevice("fireboy1919", "MiLight Controller", deviceId, hub.id, [label: "${settings.miLightName}", completedSetup: true])
-	myDevice = getChildDevice(deviceId)
+    def myDevice = getChildDevices(true)[0];
+    if(myDevice == null) {
+        log.debug("Adding device.")
+ 	    myDevice = addChildDevice("fireboy1919", "MiLight Controller", java.util.UUID.randomUUID().toString(), hub.id, [label: "${settings.miLightName}", completedSetup: true])
+    }
 
 	myDevice.name = settings.miLightName
     myDevice.label = settings.miLightName
-    myDevice.setPreferences(["code": "${settings.code}", "group":1, "ipAddress": settings.ipAddress ])
+    myDevice.setPreferences(["code": "${settings.code}", "group":1 ])
     
     subscribe(myDevice, "switch.on", switchOnHandler)
     subscribe(myDevice, "switch.off", switchOffHandler)
     subscribe(myDevice, "poll", switchPollHandler)
     subscribe(myDevice, "level", switchLevelHandler)
     subscribe(myDevice, "color", switchColorHandler)
-
+    subscribe(myDevice, "pair", pairHandler)
+    subscribe(myDevice, "unpair", unpairHandler)
     log.debug("Subscribed")
     //subscribeToCommand(myDevice, "refresh", switchRefreshHandler)
     
@@ -97,21 +99,35 @@ private removeChildDevices(delete) {
     }
 }
 
-def httpCall(body, evt) {
+def pairHandler(evt) {
+    def body = ["pair": "on"]
+
+	if(parent.settings.isDebug) { log.debug "paired! ${settings.code} / ${evt.device.name}" }
+    /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.code,
+        evt.device.getPreferences()["group"]) */
+
+    httpCall(body, parent.settings.ipAddress, settings.code, 1)
+
 }
+def unpairHandler(evt) {
+    def body = ["unpair": "on"]
+
+	if(parent.settings.isDebug) { log.debug "unpaired! ${settings.code} / ${evt.device.name}" }
+    /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.code,
+        evt.device.getPreferences()["group"]) */
+
+    httpCall(body, parent.settings.ipAddress, settings.code, 1)
+
+}
+
+
 
 def switchOnHandler(evt) {
     def body = ["status": "on"]
 	if(parent.settings.isDebug) { log.debug "master switch on! ${settings.code} / ${evt.device.name}" }
     
-     httpCall(body, settings.ipAddress, settings.code,
+     httpCall(body, parent.settings.ipAddress, settings.code,
         evt.device.getPreferences()["group"])
-
-    if(getPrimaryDevice().deviceNetworkId == evt.device.deviceNetworkId) {
-        getChildDevices().each {
-    	    it.on(false)
-        }
-    }
 }
 
 def switchOffHandler(evt) {
@@ -121,14 +137,8 @@ def switchOffHandler(evt) {
     /* getPrimaryDevice().httpCall(["status": "off"], settings.ipAddress, settings.code,
         evt.device.getPreferences()["group"]) */
 
-    httpCall(body, settings.ipAddress, settings.code,
-        evt.device.getPreferences()["group"])
+    httpCall(body, parent.settings.ipAddress, settings.code, 1)
 
-    if(getPrimaryDevice().deviceNetworkId == evt.device.deviceNetworkId) {
-        getChildDevices().each {
-    	    it.off(false)
-        }
-    }
 }
 
 def switchLevelHandler(evt) {
@@ -136,14 +146,7 @@ def switchLevelHandler(evt) {
 
 	if(parent.settings.isDebug) { log.debug "switch set level! ${settings.code} / ${evt.device.name} / ${evt.value}" }
      
-    httpCall(body, settings.ipAddress, settings.code,
-        evt.device.getPreferences()["group"])
-
-    if(getPrimaryDevice().deviceNetworkId == evt.device.deviceNetworkId) {
-        getChildDevices().each {
-    	    it.setLevel(evt.value.toInteger(), false)
-        }
-    }
+    httpCall(body, parent.settings.ipAddress, settings.code, 1)
 }
 
 def switchColorHandler(evt) {
@@ -151,20 +154,35 @@ def switchColorHandler(evt) {
 
 	if(parent.settings.isDebug) { log.debug "color set! ${settings.code} / ${evt.device.name} / ${evt.value}" }
          
-    httpCall(body, settings.ipAddress, settings.code,
-        evt.device.getPreferences()["group"])
+    httpCall(body, parent.settings.ipAddress, settings.code, 1)
 
-    if(getPrimaryDevice().deviceNetworkId == evt.device.deviceNetworkId) {
-    getChildDevices().each {
-    		it.setColor(evt.value, false)
-        }
-    }
 }
 
-def switchRefreshHandler(evt) {
-	if(parent.settings.isDebug) { log.debug "switch command : refresh !" }
-    /* Does nothing. 
-    def path = parent.buildPath("rgbw", "status", evt);
-	parent.httpCall(path, settings.code, evt);
-    */
+def httpCall(body, ipAddress, code, group) {
+
+    def path =  "/gateways/$code/rgbw/$group"
+    def bodyString = groovy.json.JsonOutput.toJson(body)
+    def ipAddressHex = convertIPtoHex(ipAddress)
+    def port = convertToHex(80);
+
+    def deviceNetworkId = "$ipAddressHex:$port"
+    try {
+        def hubaction = new physicalgraph.device.HubAction([
+            method: "POST",
+            path: path,
+            body: bodyString,
+			headers: [ HOST: "$ipAddress:80", "Content-Type": "application/json" ]]
+        )
+        /*
+        httpPut(path, JsonOutput.toJson(body)) {resp ->
+            if(settings.isDebug) { log.debug "Successfully updated settings." }
+            //parseResponse(resp, mac, evt)
+        }
+        */
+        log.debug("Sending $bodyString to ${path}.")
+        sendHubCommand(hubaction);
+        return hubAction;
+    } catch (e) {
+        log.error "Error sending: $e"
+    }
 }

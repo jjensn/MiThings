@@ -21,10 +21,11 @@ metadata {
         capability "Color Control"
         capability "Polling"
         capability "Sensor"
-        capability "Pair" 
-        capability "Unpair" 
+        capability "Momentary" 
         command "httpCall" 
         command "unknown"
+        command "pair"
+        command "unpair"
 	}
     
     preferences {       
@@ -58,16 +59,15 @@ metadata {
 				attributeState "color", action:"setColor"
 			}
 		}
-        /*
-        standardTile("pair", "device.pair", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"pair.pair", icon:"st.secondary.refresh"
+        standardTile("pair", "device.momentary", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label:"", action:"pair", icon:"st.secondary.refresh"
         }
-        standardTile("refresh", "device.unpair", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"pair.unpair", icon:"st.secondary.refresh"
+        standardTile("unpair", "device.momentary", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
+            state "default", label:"", action:"unpair", icon:"st.secondary.refresh"
         }
-        */
+
 		main(["switch"])
-		details(["switch","levelSliderControl", "rgbSelector", "refresh"])
+		details(["switch","levelSliderControl", "rgbSelector", "refresh", "pair", "unpair"])
 	} 
 }
 
@@ -105,6 +105,14 @@ def setColor(value, boolean sendHttp = true) {
 	return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
 }
 
+def pair() {
+    sendEvent(name: "pair")
+}
+
+def unpair() {
+    sendEvent(name: "unpair")
+}
+
 def unknown() {
     sendEvent(name: "switch", value: "unknown")
 }
@@ -133,12 +141,13 @@ private String convertToHex(port) {
     return hex
 }
 
-def httpCall(body) {
+def httpCall(body, ipAddress, code, group) {
+    /*
     def mac = getPreferences()['code']
     def ipAddress = getPreferences()['ipAddress']
     def group = getPreferences()['group']
-
-    def path =  "/gateways/$mac/rgbw/$group"
+    */
+    def path =  "/gateways/$code/rgbw/$group"
     def bodyString = groovy.json.JsonOutput.toJson(body)
     def ipAddressHex = convertIPtoHex(ipAddress)
     def port = convertToHex(80);
