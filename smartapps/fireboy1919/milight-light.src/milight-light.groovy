@@ -158,11 +158,6 @@ def switchColorHandler(evt) {
 
 }
 
-private String convertToHex(port) { 
-    String hex = String.format( '0x%04x', port.toInteger())
-    return hex
-}
-
 def httpCall(body, ipAddress, code, device) {
     def bulbType = device.getPreferences()['lightType']
     def group = device.getPreferences()['group']
