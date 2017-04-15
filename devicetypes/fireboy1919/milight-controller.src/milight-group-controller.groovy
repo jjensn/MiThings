@@ -14,7 +14,7 @@
  *
  */
 metadata {
-	definition (name: "MiLight Controller", namespace: "cloudsyjared", author: "Jared Jensen", singleInstance: false) {
+	definition (name: "MiLight Group Controller", namespace: "fireboy1919", author: "Rusty Phillips", singleInstance: false) {
 		capability "Switch Level"
 		capability "Actuator"
 		capability "Switch"
@@ -22,18 +22,25 @@ metadata {
         capability "Polling"
         capability "Sensor"
         capability "Refresh" 
-               
+        command "httpCall" 
         command "unknown"
 	}
     
     preferences {       
-       input "mac", "string", title: "MAC Address",
-       		  description: "The MAC address of this MiLight bridge", defaultValue: "The MAC address here",
+       input "ipAddress", "string", title: "IP Address",
+       		  description: "The IP address of this MiLight bridge", defaultValue: "The IP address here",
               required: true, displayDuringSetup: false 
-       
+			  /*
+        input "port", "string", title: "Port number",
+       		  description: "The port number used by this MiLight bridge", defaultValue: "Theport number here",
+              required: true, displayDuringSetup: false 
+      */
+       input "mac", "string", title: "Mac Address",
+       		  description: "The MAC address of this MiLight bridge", defaultValue: "The Mac address here",
+              required: true, displayDuringSetup: false 
        input "group", "number", title: "Group Number",
        		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
-              required: false, displayDuringSetup: false       
+              required: true, displayDuringSetup: false       
 	}
 
 	tiles(scale: 2) {
@@ -69,6 +76,7 @@ def parse(String description) {
 }
 
 private parseResponse(String resp) {
+    debug.log("Response: $resp" )
 }
 
 private parseResponse(resp) {
@@ -107,4 +115,44 @@ def off(boolean sendHttp = true) {
 
 def refresh() {
 	return sendEvent(name: "refresh")
+}
+
+
+private String convertIPtoHex(ipAddress) { 
+    String hex = ipAddress.tokenize( '.' ).collect {  String.format( '%02x', it.toInteger() ) }.join()
+    log.debug "IP address entered is $ipAddress and the converted hex code is $hex"
+    return hex
+}
+
+private String convertToHex(port) { 
+    String hex = String.format( '%02x', port.toInteger())
+    return hex
+}
+
+def httpCall(body, ipAddress, mac) {
+
+    def path =  "/gateways/$mac/rgbw/$group"
+    def bodyString = groovy.json.JsonOutput.toJson(body)
+    def ipAddressHex = convertIPtoHex(ipAddress)
+    def port = convertToHex("80");
+    log.debug("Sending $bodyString to ${path}.")
+    //device.deviceNetworkId = "$ipAddressHex:$port"
+    try {
+        def hubaction = new physicalgraph.device.HubAction(
+            method: "PUT",
+            path: path,
+            body: body,
+            headers: [ HOST: device.deviceNetworkId, "Content-Type": "application/json" ]
+        )
+        /*
+        httpPut(path, JsonOutput.toJson(body)) {resp ->
+            if(settings.isDebug) { log.debug "Successfully updated settings." }
+            //parseResponse(resp, mac, evt)
+        }
+        */
+        sendHubCommand(hubaction);
+        //return hubAction;
+    } catch (e) {
+        log.error "Error sending: $e"
+    }
 }
