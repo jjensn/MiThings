@@ -1,7 +1,7 @@
 /**
  *  MiLight / EasyBulb / LimitlessLED Light Controller
  *
- *  Copyright 2015 Jared Jensen / jared /at/ cloudsy /dot/ com
+ *  Copyright 2017  Rusty Phillips rusty dot phillips at gmail dot com
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -21,25 +21,23 @@ metadata {
         capability "Color Control"
         capability "Polling"
         capability "Sensor"
-        capability "Refresh" 
+        capability "Momentary" 
         command "httpCall" 
         command "unknown"
+        command "pair"
+        command "unpair"
+        command "whiten"
 	}
     
     preferences {       
-       input "ipAddress", "string", title: "IP Address",
-       		  description: "The IP address of this MiLight bridge", defaultValue: "The IP address here",
-              required: true, displayDuringSetup: false 
-			  /*
-        input "port", "string", title: "Port number",
-       		  description: "The port number used by this MiLight bridge", defaultValue: "Theport number here",
-              required: true, displayDuringSetup: false 
-      */
-       input "mac", "string", title: "Mac Address",
-       		  description: "The MAC address of this MiLight bridge", defaultValue: "The Mac address here",
+       input "code", "number", title: "Address",
+       		  description: "ID Code for Light Group", defaultValue: "1",
               required: true, displayDuringSetup: false 
        input "group", "number", title: "Group Number",
-       		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "0",
+       		  description: "The group you wish to control (0-4), 0 = all", defaultValue: "1",
+              required: true, displayDuringSetup: false       
+       input "lightType", "string", title: "Light Type",
+       		  description: "Type of bulb used", defaultValue: "rgbw",
               required: true, displayDuringSetup: false       
 	}
 
@@ -58,12 +56,20 @@ metadata {
 			}
 		}
         
-        standardTile("refresh", "device.refresh", width: 2, height: 2, inactiveLabel: false, decoration: "flat") {
-            state "default", label:"", action:"refresh.refresh", icon:"st.secondary.refresh"
+        standardTile("pair", "device.switch", width: 2, height: 2, canChangeIcon: true) {
+           state "default", label:"Pair", defaultState: true, action: "pair", icon: "st.switches.switch.on"
         }
-       
+        
+        standardTile("unpair", "device.switch", width: 2, height: 2, canChangeIcon: true) {
+           state "default", label:"Unpair", defaultState: true, action: "unpair", icon: "st.switches.switch.off"
+        }
+
+        standardTile("white", "device.switch", width: 2, height: 2, canChangeIcon: true) {
+           state "default", label:"White", defaultState: true, action: "whiten", icon: "st.switches.switch.off"
+        }
+
 		main(["switch"])
-		details(["switch","levelSliderControl", "rgbSelector", "refresh"])
+		details(["switch","levelSliderControl", "rgbSelector", "refresh", "pair", "unpair", "white"])
 	} 
 }
 
@@ -91,14 +97,24 @@ def setLevel(percentage, boolean sendHttp = true) {
 }
 
 def setColor(value, boolean sendHttp = true) { 
-  	if(value in String) {
-        def j = value
-        sendEvent(name: 'color', value: j, data: [sendReq: sendHttp])
-    } else {
-    	def h = value.hex
+    	def h = value.hue
         sendEvent(name: 'color', value: h, data: [sendReq: sendHttp])
-    }
 	return sendEvent(name: 'switch', value: "on", data: [sendReq: sendHttp])
+}
+
+def pair() {
+// According to docs, value is required.  It won't sent it unless it's different every time.
+    sendEvent(name: "pair", value: java.util.UUID.randomUUID().toString())
+}
+
+def unpair() {
+// According to docs, value is required.  It won't sent it unless it's different every time.
+    sendEvent(name: "unpair", value: java.util.UUID.randomUUID().toString())    
+    log.debug("Sent unpair")
+}
+
+def whiten() {
+   sendEvent(name: "whiten", value: java.util.UUID.randomUUID().toString())    
 }
 
 def unknown() {
@@ -127,4 +143,37 @@ private String convertIPtoHex(ipAddress) {
 private String convertToHex(port) { 
     String hex = String.format( '%04x', port.toInteger())
     return hex
+}
+
+def httpCall(body, ipAddress, code, group) {
+    /*
+    def mac = getPreferences()['code']
+    def ipAddress = getPreferences()['ipAddress']
+    def group = getPreferences()['group']
+    */
+    def path =  "/gateways/$code/rgbw/$group"
+    def bodyString = groovy.json.JsonOutput.toJson(body)
+    def ipAddressHex = convertIPtoHex(ipAddress)
+    def port = convertToHex(80);
+
+    def deviceNetworkId = "$ipAddressHex:$port"
+    try {
+        def hubaction = new physicalgraph.device.HubAction([
+            method: "POST",
+            path: path,
+            body: bodyString,
+			headers: [ HOST: "$ipAddress:80", "Content-Type": "application/x-www-form-urlencoded" ]]
+        )
+        /*
+        httpPut(path, JsonOutput.toJson(body)) {resp ->
+            if(settings.isDebug) { log.debug "Successfully updated settings." }
+            //parseResponse(resp, mac, evt)
+        }
+        */
+        log.debug("Sending $bodyString to ${path}.")
+        sendHubCommand(hubaction);
+        return hubAction;
+    } catch (e) {
+        log.error "Error sending: $e"
+    }
 }
