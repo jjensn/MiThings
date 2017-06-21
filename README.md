@@ -14,8 +14,6 @@ Notable features:
 
 - Includes the ability to pair, unpair, and switch to white mode from within the app as well as setting color and mode.
 
-Right now, the color wheel setting is not quite correct.  However, everything except color works fine - at least for RGBW bulbs.
-
 This repo contains four parts to use from within Smartthings.
 
 Publish "MiLight Manager" under "My SmartApps".
