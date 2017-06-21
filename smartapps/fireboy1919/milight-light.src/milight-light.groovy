@@ -158,7 +158,7 @@ def switchLevelHandler(evt) {
 def switchColorHandler(evt) {
 	// Adapted from HA Bridge.
     log.debug("Hue: " + evt.value)
-    def val = (int)((256 + 26 - Math.floor((Float.parseFloat(evt.value) / 100)* 255)) % 256);
+    def val = (int)((360 + Math.floor((Float.parseFloat(evt.value) / 100)* 360)) % 360)
     def body = ["hue": val.toString() ]
 
 	if(parent.parent.settings.isDebug) { log.debug "color set! ${settings.code} / ${evt.device.name} / ${evt.value}" }
